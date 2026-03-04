@@ -1,0 +1,11 @@
+## Interface: 30300
+## Title: Scoots Vendor
+## Author: Scoots
+## Notes: Allows you to filter vendors / automatically purchase until forged.
+## SavedVariables: SCOOTSVENDOR_STORAGE
+## Version: 1.0.0
+
+ScootsVendor-Core.lua
+ScootsVendor-Utility.lua
+ScootsVendor-Interface.lua
+ScootsVendor-Options.lua
