@@ -18,6 +18,7 @@ ScootsVendor.interface.toggle = function()
             end
             
             ShowUIPanel(ScootsVendor.frames.master)
+            OpenBackpack()
         end
     end
 end
@@ -45,6 +46,8 @@ ScootsVendor.interface.build = function(toggleAction)
     end
     
     MerchantFrame_OnEvent = function() end
+    MerchantFrame_OnLoad = function() end
+    _G['MerchantFrame']:UnregisterAllEvents()
 
     ScootsVendor.interface.buildMainWindow()
     ScootsVendor.interface.buildTitle()
@@ -398,6 +401,9 @@ ScootsVendor.interface.buildSidePanel = function()
         ['actionCallback'] = function(value)
             if(value == 0) then
                 ScootsVendor.autoForgeLevel = nil
+                ScootsVendor.activeAutoForge = nil
+                ScootsVendor.autoForgeAttempts = nil
+                ScootsVendor.waitingForAutoForgeAttempts = nil
                 
                 ScootsVendor.frames.master.autoForgeBatchHeader:Hide()
                 ScootsVendor.frames.autoForgeBatchDecrement:Hide()

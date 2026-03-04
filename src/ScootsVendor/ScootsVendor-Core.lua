@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.1',
+    ['version'] = '1.0.2',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -826,6 +826,10 @@ ScootsVendor.doAutoForgeLoop = function(bypassSold)
     end
     
     if(ScootsVendor.utility.getAffordableCount(ScootsVendor.activeAutoForge.index) < ScootsVendor.autoForgeBatchSize) then
+        ScootsVendor.activeAutoForge = nil
+        ScootsVendor.autoForgeAttempts = nil
+        ScootsVendor.waitingForAutoForgeAttempts = nil
+        
         ScootsVendor.pushMessage(string.format('Funds depleted. You cannot afford %d of %s.', ScootsVendor.autoForgeBatchSize, ScootsVendor.utility.getItemLink(ScootsVendor.activeAutoForge.id)))
         return nil
     end
