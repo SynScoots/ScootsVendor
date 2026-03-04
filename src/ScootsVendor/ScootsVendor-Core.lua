@@ -244,7 +244,7 @@ ScootsVendor.filterCanAfford = function(price, otherCosts, playerCurrencies, bag
     
     if(#otherCosts > 0) then
         for _, cost in pairs(otherCosts) do
-            if(cost.count > 0 and (playerCurrencies[cost.id] == nil or cost.count > playerCurrencies[cost.id])) then
+            if(cost.count > 0 and ((playerCurrencies[cost.id] == nil or cost.count > playerCurrencies[cost.id]) and (bagContents[cost.id] == nil or cost.count > bagContents[cost.id]))) then
                 return false
             end
         end
