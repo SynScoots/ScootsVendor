@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.2',
+    ['version'] = '1.0.3',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -559,7 +559,7 @@ ScootsVendor.updateTotal = function(itemTotals, costTotals, bagContents)
         ScootsVendor.frames.totalCost:Hide()
     elseif(ScootsVendor.mode == 'purchase') then
         ScootsVendor.frames.totalCost:Show()
-        costTotalsSorted = {}
+        local costTotalsSorted = {}
         
         for key, value in pairs(costTotals) do
             if(key ~= '__GOLD') then
@@ -838,8 +838,11 @@ ScootsVendor.doAutoForgeLoop = function(bypassSold)
         ScootsVendor.waitingForAutoForgeAttempts = ScootsVendor.autoForgeBatchSize
         ScootsVendor.autoForgeAttempts = 0
         BuyMerchantItem(ScootsVendor.activeAutoForge.index, ScootsVendor.autoForgeBatchSize)
-    else
+    elseif(ScootsVendor.waitingForAutoForgeLoop ~= nil) then
+        ScootsVendor.waitingForAutoForgeLoop = true
+        
         ScootsVendor.registerDelayedEvent(0.05, function()
+            ScootsVendor.waitingForAutoForgeLoop = nil
             ScootsVendor.doAutoForgeLoop(true)
         end)
     end
