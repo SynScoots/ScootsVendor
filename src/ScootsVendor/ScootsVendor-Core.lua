@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.4',
+    ['version'] = '1.0.5',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -866,7 +866,7 @@ ScootsVendor.updateLoop = function(_, elapsed)
         end
     end
     
-    if(ScootsVendor.checkAutoForge == true and ScootsVendor.activeAutoForge ~= nil) then
+    if(ScootsVendor.checkAutoForge == true and ScootsVendor.activeAutoForge ~= nil and ScootsVendor.waitingForAutoForgeLoop == nil) then
         ScootsVendor.checkAutoForge = nil
         ScootsVendor.doAutoForgeLoop()
     end
