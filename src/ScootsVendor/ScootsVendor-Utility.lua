@@ -51,7 +51,7 @@ ScootsVendor.utility.getPlayerCurrencies = function()
     return playerCurrencies
 end
 
-ScootsVendor.utility.getBagContents = function()
+ScootsVendor.utility.getBagContents = function(bagOnly)
     local bagContents = {}
     
     for bagIndex = 0, 4, 1 do
@@ -70,15 +70,17 @@ ScootsVendor.utility.getBagContents = function()
         end
     end
     
-    for slotIndex = 1, 19, 1 do
-        local itemId = GetInventoryItemID('player', slotIndex)
-        
-        if(itemId ~= nil) then
-            if(bagContents[itemId] == nil) then
-                bagContents[itemId] = 0
-            end
+    if(bagOnly ~= true) then
+        for slotIndex = 1, 19, 1 do
+            local itemId = GetInventoryItemID('player', slotIndex)
             
-            bagContents[itemId] = bagContents[itemId] + 1
+            if(itemId ~= nil) then
+                if(bagContents[itemId] == nil) then
+                    bagContents[itemId] = 0
+                end
+                
+                bagContents[itemId] = bagContents[itemId] + 1
+            end
         end
     end
     

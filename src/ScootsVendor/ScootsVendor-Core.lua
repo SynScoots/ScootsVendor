@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.5',
+    ['version'] = '1.0.6',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -754,11 +754,22 @@ ScootsVendor.refreshPurchaseItemList = function()
     ScootsVendor.renderItemList()
 end
 
-ScootsVendor.registerDelayedEvent = function(delay, callback)
+ScootsVendor.registerDelayedEvent = function(delay, callback, identifier)
     table.insert(ScootsVendor.delayedEvents, {
         ['when'] = ScootsVendor.queueTimer + delay,
         ['callback'] = callback,
+        ['identifer'] = identifier,
     })
+end
+
+ScootsVendor.checkForDelayedIdentifier = function(identifer)
+    for index, delayedEvent in ipairs(ScootsVendor.delayedEvents) do
+        if(delayedEvent.identifier == identifier) then
+            return true, index
+        end
+    end
+    
+    return false, -1
 end
 
 ScootsVendor.handleAutoForge = function(itemId, merchantIndex)
@@ -789,63 +800,98 @@ ScootsVendor.handleAutoForge = function(itemId, merchantIndex)
     
     ScootsVendor.utility.sellItemBelowForgeLevel(itemId, ScootsVendor.autoForgeLevel)
     
-    ScootsVendor.activeAutoForge = {
+    ScootsVendor.autoForge = {
+        ['action'] = 'buy',
         ['id'] = itemId,
         ['index'] = merchantIndex,
+        ['count'] = ScootsVendor.autoForgeBatchSize,
+        ['attempts'] = 1,
+        ['watchCount'] = 0,
     }
     
-    ScootsVendor.waitingForAutoForgeAttempts = ScootsVendor.autoForgeBatchSize
-    ScootsVendor.autoForgeAttempts = 0
     BuyMerchantItem(merchantIndex, ScootsVendor.autoForgeBatchSize)
 end
 
-ScootsVendor.doAutoForgeLoop = function(bypassSold)
-    local countSold, forgeAchieved = ScootsVendor.utility.sellItemBelowForgeLevel(ScootsVendor.activeAutoForge.id, ScootsVendor.autoForgeLevel)
+ScootsVendor.doAutoForgeLoop = function()
+    local queuedEvent, queueIndex = ScootsVendor.checkForDelayedIdentifier('auto-forge')
     
-    if(countSold == 0 and bypassSold ~= true) then
+    if(queuedEvent) then
+        table.remove(ScootsVendor.delayedEvents, queueIndex)
+    end
+    
+    if(ScootsVendor.autoForge.action == 'buy') then
+        ScootsVendor.doAutoForgeLoopBuy()
+    else
+        ScootsVendor.doAutoForgeLoopSell()
+    end
+end
+    
+ScootsVendor.doAutoForgeLoopBuy = function()
+    local bagContents = ScootsVendor.utility.getBagContents(true)
+
+    if(bagContents[ScootsVendor.autoForge.id] == nil or bagContents[ScootsVendor.autoForge.id] < ScootsVendor.autoForge.count) then
+        ScootsVendor.autoForge.watchCount = ScootsVendor.autoForge.watchCount + 1
+        
+        if(ScootsVendor.autoForge.watchCount >= 10) then
+            ScootsVendor.pushMessage('Auto-forge error - bag contents never matched anticipated quantity. Aborting auto-forge.')
+            ScootsVendor.autoForge = nil
+        else
+            ScootsVendor.registerDelayedEvent(0.05, ScootsVendor.doAutoForgeLoop, 'auto-forge')
+        end
+        
         return nil
     end
     
-    ScootsVendor.autoForgeAttempts = ScootsVendor.autoForgeAttempts + countSold
-    
-    if(ScootsVendor.autoForgeAttempts < ScootsVendor.waitingForAutoForgeAttempts) then
-        return nil
-    end
+    local _, forgeAchieved = ScootsVendor.utility.sellItemBelowForgeLevel(ScootsVendor.autoForge.id, ScootsVendor.autoForgeLevel)
     
     if(forgeAchieved) then
-        local itemId = ScootsVendor.activeAutoForge.id
-        ScootsVendor.activeAutoForge = nil
-        ScootsVendor.autoForgeAttempts = nil
-        ScootsVendor.waitingForAutoForgeAttempts = nil
+        ScootsVendor.pushMessage(string.format(
+            'Auto-forge successful. It took %d attempts to forge %s.',
+            ScootsVendor.autoForge.attempts,
+            ScootsVendor.utility.getItemLink(ScootsVendor.autoForge.id)
+        ))
         
-        ScootsVendor.registerDelayedEvent(0.25, function()
-            ScootsVendor.utility.sellItemBelowForgeLevel(itemId, ScootsVendor.autoForgeLevel)
-        end)
+        ScootsVendor.autoForge = nil
+        
+        return nil
+    elseif(ScootsVendor.utility.getAffordableCount(ScootsVendor.autoForge.index) < ScootsVendor.autoForgeBatchSize) then
+        ScootsVendor.pushMessage(string.format(
+            'Funds depleted. You cannot afford %d of %s.',
+            ScootsVendor.autoForgeBatchSize,
+            ScootsVendor.utility.getItemLink(ScootsVendor.autoForge.id)
+        ))
+        
+        ScootsVendor.autoForge = nil
         
         return nil
     end
     
-    if(ScootsVendor.utility.getAffordableCount(ScootsVendor.activeAutoForge.index) < ScootsVendor.autoForgeBatchSize) then
-        ScootsVendor.activeAutoForge = nil
-        ScootsVendor.autoForgeAttempts = nil
-        ScootsVendor.waitingForAutoForgeAttempts = nil
+    ScootsVendor.autoForge.action = 'sell'
+    ScootsVendor.autoForge.watchCount = 0
+end
+
+ScootsVendor.doAutoForgeLoopSell = function()
+    local bagContents = ScootsVendor.utility.getBagContents(true)
+    
+    if(bagContents[ScootsVendor.autoForge.id] ~= nil) then
+        ScootsVendor.autoForge.watchCount = ScootsVendor.autoForge.watchCount + 1
         
-        ScootsVendor.pushMessage(string.format('Funds depleted. You cannot afford %d of %s.', ScootsVendor.autoForgeBatchSize, ScootsVendor.utility.getItemLink(ScootsVendor.activeAutoForge.id)))
+        if(ScootsVendor.autoForge.watchCount >= 10) then
+            ScootsVendor.pushMessage('Auto-forge error - bag contents never matched anticipated quantity. Aborting auto-forge.')
+            ScootsVendor.autoForge = nil
+        else
+            ScootsVendor.registerDelayedEvent(0.05, ScootsVendor.doAutoForgeLoop, 'auto-forge')
+        end
+        
         return nil
     end
     
-    if(not ScootsVendor.utility.itemInBags(ScootsVendor.activeAutoForge.id)) then
-        ScootsVendor.waitingForAutoForgeAttempts = ScootsVendor.autoForgeBatchSize
-        ScootsVendor.autoForgeAttempts = 0
-        BuyMerchantItem(ScootsVendor.activeAutoForge.index, ScootsVendor.autoForgeBatchSize)
-    elseif(ScootsVendor.waitingForAutoForgeLoop == nil) then
-        ScootsVendor.waitingForAutoForgeLoop = true
-        
-        ScootsVendor.registerDelayedEvent(0.05, function()
-            ScootsVendor.waitingForAutoForgeLoop = nil
-            ScootsVendor.doAutoForgeLoop(true)
-        end)
-    end
+    ScootsVendor.autoForge.action = 'buy'
+    ScootsVendor.autoForge.watchCount = 0
+    ScootsVendor.autoForge.attempts = ScootsVendor.autoForge.attempts + 1
+    ScootsVendor.autoForge.count = ScootsVendor.autoForgeBatchSize
+    
+    BuyMerchantItem(ScootsVendor.autoForge.index, ScootsVendor.autoForge.count)
 end
 
 ScootsVendor.pushMessage = function(message)
@@ -866,9 +912,12 @@ ScootsVendor.updateLoop = function(_, elapsed)
         end
     end
     
-    if(ScootsVendor.checkAutoForge == true and ScootsVendor.activeAutoForge ~= nil and ScootsVendor.waitingForAutoForgeLoop == nil) then
+    if(ScootsVendor.checkAutoForge == true) then
         ScootsVendor.checkAutoForge = nil
-        ScootsVendor.doAutoForgeLoop()
+        
+        if(ScootsVendor.autoForge ~= nil) then
+            ScootsVendor.doAutoForgeLoop()
+        end
     end
 end
 
@@ -892,7 +941,7 @@ ScootsVendor.eventHandler = function(self, event)
                 ScootsVendor.refreshBuybackItemList()
             end
             
-            if(ScootsVendor.activeAutoForge ~= nil) then
+            if(ScootsVendor.autoForge ~= nil) then
                 ScootsVendor.checkAutoForge = true
             end
             
