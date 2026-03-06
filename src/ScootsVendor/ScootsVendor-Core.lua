@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.3',
+    ['version'] = '1.0.4',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -838,7 +838,7 @@ ScootsVendor.doAutoForgeLoop = function(bypassSold)
         ScootsVendor.waitingForAutoForgeAttempts = ScootsVendor.autoForgeBatchSize
         ScootsVendor.autoForgeAttempts = 0
         BuyMerchantItem(ScootsVendor.activeAutoForge.index, ScootsVendor.autoForgeBatchSize)
-    elseif(ScootsVendor.waitingForAutoForgeLoop ~= nil) then
+    elseif(ScootsVendor.waitingForAutoForgeLoop == nil) then
         ScootsVendor.waitingForAutoForgeLoop = true
         
         ScootsVendor.registerDelayedEvent(0.05, function()
