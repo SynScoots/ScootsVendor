@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.9',
+    ['version'] = '1.0.10',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -401,7 +401,8 @@ end
 ScootsVendor.renderItemList = function()
     FauxScrollFrame_Update(ScootsVendor.frames.itemList, #ScootsVendor.itemList, ScootsVendor.itemsVisible, ScootsVendor.itemFrameHeight, nil, nil, nil, nil, nil, nil, true)
     local offset = FauxScrollFrame_GetOffset(ScootsVendor.frames.itemList)
-    ScootsVendor.consumedCurrencyFrames = 0
+    ScootsVendor.consumedFrames.currency.free = 0
+    ScootsVendor.consumedFrames.gold.free = 0
     local currencyFrame
     
     for _, frameGroup in pairs({
@@ -666,6 +667,9 @@ ScootsVendor.updatePlayerCurrencies = function()
         
         return a.name < b.name
     end)
+    
+    ScootsVendor.consumedFrames.currency.protected = 0
+    ScootsVendor.consumedFrames.gold.protected = 0
     
     local prior
     local width = 0
