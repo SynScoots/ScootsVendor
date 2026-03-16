@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.8',
+    ['version'] = '1.0.9',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',

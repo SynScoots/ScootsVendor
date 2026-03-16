@@ -31,8 +31,14 @@ end
 ScootsVendor.interface.forceClosed = function()
     if(ScootsVendor.interface.built == true) then
         if(ScootsVendor.frames.master:IsVisible()) then
+            CloseMerchant()
             HideUIPanel(ScootsVendor.frames.master)
             ScootsVendor.isOpen = false
+            ScootsVendor.frames.tooltip:Hide()
+            
+            for _, itemFrame in pairs(ScootsVendor.frames.items) do
+                GameTooltip_Hide(itemFrame)
+            end
         end
     end
 end
@@ -904,7 +910,7 @@ ScootsVendor.interface.getCurrencyFrame = function(protected)
         frameType = 'protected'
     end
     
-    local consumedFrames = #ScootsVendor.consumedFrames.currency[frameType]
+    local consumedFrames = ScootsVendor.consumedFrames.currency[frameType]
     consumedFrames = consumedFrames + 1
     ScootsVendor.consumedFrames.currency[frameType] = consumedFrames
     
@@ -1001,12 +1007,12 @@ ScootsVendor.interface.getGoldFrame = function(protected)
         frameType = 'protected'
     end
     
-    local consumedFrames = #ScootsVendor.consumedFrames.gold[frameType]
+    local consumedFrames = ScootsVendor.consumedFrames.gold[frameType]
     consumedFrames = consumedFrames + 1
     ScootsVendor.consumedFrames.gold[frameType] = consumedFrames
     
     if(ScootsVendor.frames.gold[frameType][consumedFrames] == nil) then
-        local currencyFrame = CreateFrame('Frame', 'ScootsVendor-CurrencyFrame-' .. tostring(consumedFrames) .. '-' .. frameType, ScootsVendor.frames.master)
+        local currencyFrame = CreateFrame('Frame', 'ScootsVendor-GoldFrame-' .. tostring(consumedFrames) .. '-' .. frameType, ScootsVendor.frames.master)
         currencyFrame:SetBackdrop({
             bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
             edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border',
