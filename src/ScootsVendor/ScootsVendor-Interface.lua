@@ -10,7 +10,7 @@ ScootsVendor.interface.toggle = function()
             CloseMerchant()
             HideUIPanel(ScootsVendor.frames.master)
             ScootsVendor.isOpen = false
-            ScootsVendor.frames.tooltipParser:Hide()
+            ScootsVendor.frames.tooltip:Hide()
             
             for _, itemFrame in pairs(ScootsVendor.frames.items) do
                 GameTooltip_Hide(itemFrame)
