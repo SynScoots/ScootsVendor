@@ -10,6 +10,11 @@ ScootsVendor.interface.toggle = function()
             CloseMerchant()
             HideUIPanel(ScootsVendor.frames.master)
             ScootsVendor.isOpen = false
+            ScootsVendor.frames.tooltipParser:Hide()
+            
+            for _, itemFrame in pairs(ScootsVendor.frames.items) do
+                GameTooltip_Hide(itemFrame)
+            end
         else
             ScootsVendor.isOpen = true
         
@@ -899,7 +904,7 @@ ScootsVendor.interface.getCurrencyFrame = function(protected)
         frameType = 'protected'
     end
     
-    local consumedFrames = ScootsVendor.consumedFrames.currency[frameType]
+    local consumedFrames = #ScootsVendor.consumedFrames.currency[frameType]
     consumedFrames = consumedFrames + 1
     ScootsVendor.consumedFrames.currency[frameType] = consumedFrames
     
@@ -996,7 +1001,7 @@ ScootsVendor.interface.getGoldFrame = function(protected)
         frameType = 'protected'
     end
     
-    local consumedFrames = ScootsVendor.consumedFrames.gold[frameType]
+    local consumedFrames = #ScootsVendor.consumedFrames.gold[frameType]
     consumedFrames = consumedFrames + 1
     ScootsVendor.consumedFrames.gold[frameType] = consumedFrames
     

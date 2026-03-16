@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.6',
+    ['version'] = '1.0.7',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -877,7 +877,7 @@ ScootsVendor.doAutoForgeLoopSell = function()
         ScootsVendor.autoForge.watchCount = ScootsVendor.autoForge.watchCount + 1
         
         if(ScootsVendor.autoForge.watchCount >= 10) then
-            ScootsVendor.pushMessage('Auto-forge error - bag contents never matched anticipated quantity. Aborting auto-forge.')
+            ScootsVendor.pushMessage('Auto-forge error - bag contents never reached 0. Aborting auto-forge.')
             ScootsVendor.autoForge = nil
         else
             ScootsVendor.registerDelayedEvent(0.05, ScootsVendor.doAutoForgeLoop, 'auto-forge')
