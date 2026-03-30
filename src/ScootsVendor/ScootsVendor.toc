@@ -3,7 +3,7 @@
 ## Author: Scoots
 ## Notes: Allows you to filter vendors / automatically purchase until forged.
 ## SavedVariables: SCOOTSVENDOR_STORAGE
-## Version: 1.0.10
+## Version: 1.0.11
 
 ScootsVendor-Core.lua
 ScootsVendor-Utility.lua

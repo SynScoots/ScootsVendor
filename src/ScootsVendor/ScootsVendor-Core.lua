@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.10',
+    ['version'] = '1.0.11',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -953,7 +953,7 @@ ScootsVendor.eventHandler = function(self, event)
             ScootsVendor.forceMouseEnterEvents()
         end
     elseif(event == 'PLAYER_MONEY' or event == 'CURRENCY_DISPLAY_UPDATE' or event == 'CHAT_MSG_COMBAT_HONOR_GAIN') then
-        if(ScootsVendor.interface.built == true and ScootsVendor.frames.master:IsVisible()) then
+        if(ScootsVendor.interface ~= nil and ScootsVendor.interface.built == true and ScootsVendor.frames.master:IsVisible()) then
             ScootsVendor.updatePlayerCurrencies()
         end
     elseif(event == 'MERCHANT_CLOSED') then

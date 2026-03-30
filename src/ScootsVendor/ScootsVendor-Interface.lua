@@ -24,6 +24,9 @@ ScootsVendor.interface.toggle = function()
             
             ShowUIPanel(ScootsVendor.frames.master)
             OpenBackpack()
+    
+            PanelTemplates_SelectTab(ScootsVendor.frames.switchToPurchase)
+            PanelTemplates_DeselectTab(ScootsVendor.frames.switchToBuyback)
         end
     end
 end
@@ -37,7 +40,7 @@ ScootsVendor.interface.forceClosed = function()
             ScootsVendor.frames.tooltip:Hide()
             
             for _, itemFrame in pairs(ScootsVendor.frames.items) do
-                GameTooltip_Hide(itemFrame)
+                itemFrame.mouseLeaveEvent()
             end
         end
     end
@@ -701,7 +704,10 @@ ScootsVendor.interface.insertSidePanelDropdown = function(data)
             GameTooltip:Show()
         end)
         
-        button:SetScript('OnLeave', GameTooltip_Hide)
+        button:SetScript('OnLeave', function()
+            GameTooltip:ClearAllPoints()
+            GameTooltip_Hide()
+        end)
     end
     
     return dropdown
@@ -761,14 +767,16 @@ ScootsVendor.interface.buildItemList = function()
         end
         
         itemFrame.mouseEnterEvent = function()
-            itemFrame.background:SetAlpha(0.1)
-            
-            if(itemFrame.itemId) then
-                GameTooltip:SetOwner(itemFrame, 'ANCHOR_NONE')
-                GameTooltip:ClearAllPoints()
-                GameTooltip:SetPoint('TOPLEFT', itemFrame, 'TOPRIGHT', 0, 0)
-                GameTooltip:SetHyperlink(ScootsVendor.utility.getItemLink(itemFrame.itemId))
-                GameTooltip:Show()
+            if(ScootsVendor.frames.master:IsVisible()) then
+                itemFrame.background:SetAlpha(0.1)
+                
+                if(itemFrame.itemId) then
+                    GameTooltip:SetOwner(itemFrame, 'ANCHOR_NONE')
+                    GameTooltip:ClearAllPoints()
+                    GameTooltip:SetPoint('TOPLEFT', itemFrame, 'TOPRIGHT', 0, 0)
+                    GameTooltip:SetHyperlink(ScootsVendor.utility.getItemLink(itemFrame.itemId))
+                    GameTooltip:Show()
+                end
             end
         end
         
@@ -778,6 +786,7 @@ ScootsVendor.interface.buildItemList = function()
         
         itemFrame.mouseLeaveEvent = function()
             itemFrame.background:SetAlpha(0.05)
+            GameTooltip:ClearAllPoints()
             GameTooltip_Hide(itemFrame)
         end
         
