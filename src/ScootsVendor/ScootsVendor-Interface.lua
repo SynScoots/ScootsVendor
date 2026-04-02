@@ -82,6 +82,15 @@ ScootsVendor.interface.build = function(toggleAction)
     ScootsVendor.frames.autoForgeBatchSize:SetNumber(ScootsVendor.options.get('auto-forge-batch-size'))
     
     ScootsVendor.interface.built = true
+    
+    local originalMerchantShowCheck = _G['MerchantFrame'].IsShown
+    _G['MerchantFrame'].IsShown = function(self)
+        if(ScootsVendor.frames.master:IsVisible()) then
+            return true
+        end
+        
+        return originalMerchantShowCheck(self)
+    end
 end
 
 ScootsVendor.interface.buildMainWindow = function()

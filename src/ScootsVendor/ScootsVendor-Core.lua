@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.0.11',
+    ['version'] = '1.1.0',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -260,27 +260,8 @@ ScootsVendor.filterNonEquipment = function(itemId)
         return true
     end
     
-    if(itemId == 47241 and ScootsVendor.options.get('filter-bypass-emblemoftriumph')) then
-        return true
-    end
-    
-    if(itemId == 44115 and ScootsVendor.options.get('filter-bypass-wintergraspcommendation')) then
-        return true
-    end
-    
-    if(itemId == 63646 and ScootsVendor.options.get('filter-bypass-wintergraspcommendationx10')) then
-        return true
-    end
-    
-    if(itemId == 60244 and ScootsVendor.options.get('filter-bypass-commendationofvalor')) then
-        return true
-    end
-    
-    if(itemId == 63647 and ScootsVendor.options.get('filter-bypass-commendationofvalorx10')) then
-        return true
-    end
-    
-    if(itemId == 60232 and ScootsVendor.options.get('filter-bypass-mysterybox')) then
+    local bypassItems = ScootsVendor.options.get('bypass-items') or {}
+    if(bypassItems[itemId]) then
         return true
     end
     
@@ -294,23 +275,8 @@ ScootsVendor.filterInBag = function(itemId, bagContents)
         return true
     end
     
-    if(itemId == 44115 and ScootsVendor.options.get('filter-bypass-wintergraspcommendation')) then
-        return true
-    end
-    
-    if(itemId == 63646 and ScootsVendor.options.get('filter-bypass-wintergraspcommendationx10')) then
-        return true
-    end
-    
-    if(itemId == 60244 and ScootsVendor.options.get('filter-bypass-commendationofvalor')) then
-        return true
-    end
-    
-    if(itemId == 63647 and ScootsVendor.options.get('filter-bypass-commendationofvalorx10')) then
-        return true
-    end
-    
-    if(itemId == 60232 and ScootsVendor.options.get('filter-bypass-mysterybox')) then
+    local bypassItems = ScootsVendor.options.get('bypass-items') or {}
+    if(bypassItems[itemId]) then
         return true
     end
     

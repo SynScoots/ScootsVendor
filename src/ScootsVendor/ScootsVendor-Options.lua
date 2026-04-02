@@ -3,12 +3,7 @@ ScootsVendor.options = {}
 ScootsVendor.options.load = function()
     local defaultOptions = {
         ['drag-window'] = true,
-        ['filter-bypass-emblemoftriumph'] = true,
-        ['filter-bypass-wintergraspcommendation'] = true,
-        ['filter-bypass-wintergraspcommendationx10'] = true,
-        ['filter-bypass-commendationofvalor'] = true,
-        ['filter-bypass-commendationofvalorx10'] = true,
-        ['filter-bypass-mysterybox'] = true,
+        ['bypass-items'] = {},
         ['default-filters'] = {
             ['can-afford'] = false,
             ['show-non-equipment'] = true,
@@ -49,6 +44,13 @@ ScootsVendor.options.load = function()
         end
     end
     
+    local bypassItems = ScootsVendor.options.getItemsThatBypassFilters()
+    for _, item in pairs(bypassItems) do
+        if(options['bypass-items'][item.id] == nil) then
+            options['bypass-items'][item.id] = true
+        end
+    end
+    
     ScootsVendor.storage.options = options
     ScootsVendor.filters = {}
     
@@ -72,6 +74,7 @@ ScootsVendor.options.set = function(optionName, optionValue)
     end
     
     ScootsVendor.storage.options[optionName] = optionValue
+    ScootsVendor.refreshPurchaseItemList()
 end
 
 ScootsVendor.options.open = function()
@@ -153,105 +156,31 @@ ScootsVendor.options.build = function()
         
         --
         
-        ScootsVendor.frames.emblemOfTriumphBypassFiltersOption = ScootsVendor.options.insertOptionsCheckbox({
-            ['framename'] = 'ScootsVendor-Options-EmblemOfTriumphBypassFilters',
-            ['parent'] = ScootsVendor.frames.optionsScrollChild,
-            ['prior'] = ScootsVendor.frames.draggableOption,
-            ['offset'] = -5,
-            ['name'] = 'Emblem of Triumph bypasses filters',
-            ['defaultState'] = ScootsVendor.options.get('filter-bypass-emblemoftriumph'),
-            ['tooltip'] = 'With this option enabled, the "Show non-equipment" filter will always allow Emblem of Triumph to show.',
-            ['onClickEvent'] = function(self)
-                ScootsVendor.options.set('filter-bypass-emblemoftriumph', (self:GetChecked() and true) or false)
-            end,
-        })
+        local bypassItems = ScootsVendor.options.getItemsThatBypassFilters()
+        ScootsVendor.frames.itemsBypassingFiltersOptions = {}
+        local prior = ScootsVendor.frames.draggableOption
+        local bypassFiltersItemsState = ScootsVendor.options.get('bypass-items') or {}
         
-        height = height + ScootsVendor.frames.emblemOfTriumphBypassFiltersOption:GetHeight() + 5
+        for _, item in ipairs(bypassItems) do
+            local bypassFilterItemOption = ScootsVendor.options.insertOptionsCheckbox({
+                ['framename'] = 'ScootsVendor-Options-ItemBypassingFilters-' .. tostring(item.id),
+                ['parent'] = ScootsVendor.frames.optionsScrollChild,
+                ['prior'] = prior,
+                ['offset'] = -5,
+                ['name'] = item['option-name'],
+                ['defaultState'] = (bypassFiltersItemsState[item.id] == true),
+                ['tooltip'] = item['option-tooltip'],
+                ['onClickEvent'] = function(self)
+                    bypassFiltersItemsState[item.id] = ((self:GetChecked() and true) or false)
+                    ScootsVendor.options.set('bypass-items', bypassFiltersItemsState)
+                end,
+            })
         
-        --
-        
-        ScootsVendor.frames.wintergraspCommendationBypassFiltersOption = ScootsVendor.options.insertOptionsCheckbox({
-            ['framename'] = 'ScootsVendor-Options-WintergraspCommendationBypassFilters',
-            ['parent'] = ScootsVendor.frames.optionsScrollChild,
-            ['prior'] = ScootsVendor.frames.emblemOfTriumphBypassFiltersOption,
-            ['offset'] = -5,
-            ['name'] = 'Wintergrasp Commendation bypasses filters',
-            ['defaultState'] = ScootsVendor.options.get('filter-bypass-wintergraspcommendation'),
-            ['tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Wintergrasp Commendation to show.',
-            ['onClickEvent'] = function(self)
-                ScootsVendor.options.set('filter-bypass-wintergraspcommendation', (self:GetChecked() and true) or false)
-            end,
-        })
-        
-        height = height + ScootsVendor.frames.wintergraspCommendationBypassFiltersOption:GetHeight() + 5
-        
-        --
-        
-        ScootsVendor.frames.wintergraspCommendationx10BypassFiltersOption = ScootsVendor.options.insertOptionsCheckbox({
-            ['framename'] = 'ScootsVendor-Options-WintergraspCommendationx10BypassFilters',
-            ['parent'] = ScootsVendor.frames.optionsScrollChild,
-            ['prior'] = ScootsVendor.frames.wintergraspCommendationBypassFiltersOption,
-            ['offset'] = -5,
-            ['name'] = 'Wintergrasp Commendation x10 bypasses filters',
-            ['defaultState'] = ScootsVendor.options.get('filter-bypass-wintergraspcommendationx10'),
-            ['tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Wintergrasp Commendation x10 to show.',
-            ['onClickEvent'] = function(self)
-                ScootsVendor.options.set('filter-bypass-wintergraspcommendationx10', (self:GetChecked() and true) or false)
-            end,
-        })
-        
-        height = height + ScootsVendor.frames.wintergraspCommendationx10BypassFiltersOption:GetHeight() + 5
-        
-        --
-        
-        ScootsVendor.frames.commendationOfValorBypassFiltersOption = ScootsVendor.options.insertOptionsCheckbox({
-            ['framename'] = 'ScootsVendor-Options-CommendationOfValorBypassFilters',
-            ['parent'] = ScootsVendor.frames.optionsScrollChild,
-            ['prior'] = ScootsVendor.frames.wintergraspCommendationx10BypassFiltersOption,
-            ['offset'] = -5,
-            ['name'] = 'Commendation of Valor bypasses filters',
-            ['defaultState'] = ScootsVendor.options.get('filter-bypass-commendationofvalor'),
-            ['tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Commendation of Valor to show.',
-            ['onClickEvent'] = function(self)
-                ScootsVendor.options.set('filter-bypass-commendationofvalor', (self:GetChecked() and true) or false)
-            end,
-        })
-        
-        height = height + ScootsVendor.frames.commendationOfValorBypassFiltersOption:GetHeight() + 5
-        
-        --
-        
-        ScootsVendor.frames.commendationOfValorx10BypassFiltersOption = ScootsVendor.options.insertOptionsCheckbox({
-            ['framename'] = 'ScootsVendor-Options-CommendationOfValorx10BypassFilters',
-            ['parent'] = ScootsVendor.frames.optionsScrollChild,
-            ['prior'] = ScootsVendor.frames.commendationOfValorBypassFiltersOption,
-            ['offset'] = -5,
-            ['name'] = 'Commendation of Valor x10 bypasses filters',
-            ['defaultState'] = ScootsVendor.options.get('filter-bypass-commendationofvalorx10'),
-            ['tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Commendation of Valor x10 to show.',
-            ['onClickEvent'] = function(self)
-                ScootsVendor.options.set('filter-bypass-commendationofvalorx10', (self:GetChecked() and true) or false)
-            end,
-        })
-        
-        height = height + ScootsVendor.frames.commendationOfValorx10BypassFiltersOption:GetHeight() + 5
-        
-        --
-        
-        ScootsVendor.frames.mysteryBoxBypassFiltersOption = ScootsVendor.options.insertOptionsCheckbox({
-            ['framename'] = 'ScootsVendor-Options-MysteryBoxBypassFilters',
-            ['parent'] = ScootsVendor.frames.optionsScrollChild,
-            ['prior'] = ScootsVendor.frames.commendationOfValorx10BypassFiltersOption,
-            ['offset'] = -5,
-            ['name'] = 'Mystery Box bypasses filters',
-            ['defaultState'] = ScootsVendor.options.get('filter-bypass-mysterybox'),
-            ['tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Mystery Box to show.',
-            ['onClickEvent'] = function(self)
-                ScootsVendor.options.set('filter-bypass-mysterybox', (self:GetChecked() and true) or false)
-            end,
-        })
-        
-        height = height + ScootsVendor.frames.mysteryBoxBypassFiltersOption:GetHeight() + 5
+            table.insert(ScootsVendor.frames.itemsBypassingFiltersOptions, bypassFilterItemOption)
+            prior = bypassFilterItemOption
+            
+            height = height + bypassFilterItemOption:GetHeight() + 5
+        end
         
         --
         
@@ -263,7 +192,7 @@ ScootsVendor.options.build = function()
             ['title'] = 'Default filter values'
         })
         
-        ScootsVendor.frames.optionsDefaultFiltersGroup:SetPoint('TOPLEFT', ScootsVendor.frames.mysteryBoxBypassFiltersOption, 'BOTTOMLEFT', 0, -10)
+        ScootsVendor.frames.optionsDefaultFiltersGroup:SetPoint('TOPLEFT', ScootsVendor.frames.itemsBypassingFiltersOptions[#ScootsVendor.frames.itemsBypassingFiltersOptions], 'BOTTOMLEFT', 0, -10)
         
         local defaultFilters = ScootsVendor.options.get('default-filters')
         
@@ -558,4 +487,49 @@ ScootsVendor.options.insertOptionsRadio = function(data)
     end
     
     return header, checkboxes
+end
+
+ScootsVendor.options.getItemsThatBypassFilters = function()
+    return {
+        {
+            ['id'] = 47241, -- Emblem of Triumph
+            ['option-name'] = 'Emblem of Triumph bypasses filters',
+            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" filter will always allow Emblem of Triumph to show.',
+        },
+        {
+            ['id'] = 44115, -- Wintergrasp Commendation
+            ['option-name'] = 'Wintergrasp Commendation bypasses filters',
+            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Wintergrasp Commendation to show.',
+        },
+        {
+            ['id'] = 63646, -- Wintergrasp Commendation x10
+            ['option-name'] = 'Wintergrasp Commendation x10 bypasses filters',
+            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Wintergrasp Commendation x10 to show.',
+        },
+        {
+            ['id'] = 60244, -- Commendation of Valor
+            ['option-name'] = 'Commendation of Valor bypasses filters',
+            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Commendation of Valor to show.',
+        },
+        {
+            ['id'] = 63647, -- Commendation of Valor x10
+            ['option-name'] = 'Commendation of Valor x10 bypasses filters',
+            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Commendation of Valor x10 to show.',
+        },
+        {
+            ['id'] = 60232, -- Mystery Box
+            ['option-name'] = 'Mystery Box bypasses filters',
+            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Mystery Box to show.',
+        },
+        {
+            ['id'] = 21215, -- Graccu's Mince Meat Fruitcake
+            ['option-name'] = 'Graccu\'s Mince Meat Fruitcake bypasses filters',
+            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Graccu\'s Mince Meat Fruitcake to show.',
+        },
+        {
+            ['id'] = 42225, -- Dragon's Eye
+            ['option-name'] = 'Dragon\'s Eye bypasses filters',
+            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Dragon\'s Eye to show.',
+        },
+    }
 end
