@@ -21,7 +21,8 @@ ScootsVendor.interface.toggle = function()
             
             _G['MerchantFrame']:Show()
             _G['MerchantFrame']:ClearAllPoints()
-            _G['MerchantFrame']:SetPoint('RIGHT', UIParent, 'LEFT', 0, 0)
+            --_G['MerchantFrame']:SetPoint('RIGHT', UIParent, 'LEFT', 0, 0)
+            _G['MerchantFrame']:SetPoint('LEFT', UIParent, 'LEFT', 0, 0)
             
             ShowUIPanel(ScootsVendor.frames.master)
             OpenBackpack()
@@ -34,30 +35,22 @@ end
 
 ScootsVendor.interface.forceClosed = function()
     if(ScootsVendor.interface.built == true) then
-        if(ScootsVendor.frames.master:IsVisible()) then
-            ScootsVendor.interface.hideUI()
-            
-            for _, itemFrame in pairs(ScootsVendor.frames.items) do
-                itemFrame.mouseLeaveEvent()
-            end
+        ScootsVendor.interface.hideUI()
+        
+        for _, itemFrame in pairs(ScootsVendor.frames.items) do
+            itemFrame.mouseLeaveEvent()
         end
     end
 end
 
 ScootsVendor.interface.hideUI = function()
-    HideUIPanel(_G['MerchantFrame'])
+    _G['MerchantFrame']:Hide()
     CloseMerchant()
     ResetCursor()
     
     HideUIPanel(ScootsVendor.frames.master)
     ScootsVendor.isOpen = false
     ScootsVendor.frames.tooltip:Hide()
-    
-    ScootsVendor.dequeueDelayedEvent('fix-cursor')
-    ScootsVendor.registerDelayedEvent(0.25, function()
-        HideUIPanel(_G['MerchantFrame'])
-        ScootsVendor.dequeueDelayedEvent('fix-cursor')
-    end, 'fix-cursor')
 end
 
 ScootsVendor.interface.build = function(toggleAction)
