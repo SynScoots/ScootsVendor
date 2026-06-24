@@ -7,13 +7,7 @@ ScootsVendor.interface.toggle = function()
     
     if(ScootsVendor.interface.built == true) then
         if(ScootsVendor.frames.master:IsVisible()) then
-            CloseMerchant()
-            
-            _G['MerchantFrame']:Hide()
-            
-            HideUIPanel(ScootsVendor.frames.master)
-            ScootsVendor.isOpen = false
-            ScootsVendor.frames.tooltip:Hide()
+            ScootsVendor.interface.hideUI()
             
             for _, itemFrame in pairs(ScootsVendor.frames.items) do
                 GameTooltip_Hide(itemFrame)
@@ -41,16 +35,29 @@ end
 ScootsVendor.interface.forceClosed = function()
     if(ScootsVendor.interface.built == true) then
         if(ScootsVendor.frames.master:IsVisible()) then
-            CloseMerchant()
-            HideUIPanel(ScootsVendor.frames.master)
-            ScootsVendor.isOpen = false
-            ScootsVendor.frames.tooltip:Hide()
+            ScootsVendor.interface.hideUI()
             
             for _, itemFrame in pairs(ScootsVendor.frames.items) do
                 itemFrame.mouseLeaveEvent()
             end
         end
     end
+end
+
+ScootsVendor.interface.hideUI = function()
+    HideUIPanel(_G['MerchantFrame'])
+    CloseMerchant()
+    ResetCursor()
+    
+    HideUIPanel(ScootsVendor.frames.master)
+    ScootsVendor.isOpen = false
+    ScootsVendor.frames.tooltip:Hide()
+    
+    ScootsVendor.dequeueDelayedEvent('fix-cursor')
+    ScootsVendor.registerDelayedEvent(0.25, function()
+        HideUIPanel(_G['MerchantFrame'])
+        ScootsVendor.dequeueDelayedEvent('fix-cursor')
+    end, 'fix-cursor')
 end
 
 ScootsVendor.interface.build = function(toggleAction)

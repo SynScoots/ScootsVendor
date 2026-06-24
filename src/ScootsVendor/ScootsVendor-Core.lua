@@ -1,10 +1,11 @@
 ScootsVendor = {
-    ['version'] = '1.2.0',
+    ['version'] = '1.2.1',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
     ['frames'] = {
         ['master'] = CreateFrame('Frame', 'ScootsVendor-Master', UIParent),
+        ['loopHolder'] = CreateFrame('Frame', 'ScootsVendor-LoopHolder', UIParent),
         ['currency'] = {
             ['protected'] = {},
             ['free'] = {},
@@ -732,6 +733,14 @@ ScootsVendor.registerDelayedEvent = function(delay, callback, identifier)
     })
 end
 
+ScootsVendor.dequeueDelayedEvent = function(identifier)
+    local queuedEvent, queueIndex = ScootsVendor.checkForDelayedIdentifier(identifier)
+
+    if(queuedEvent) then
+        table.remove(ScootsVendor.delayedEvents, queueIndex)
+    end
+end
+
 ScootsVendor.checkForDelayedIdentifier = function(identifer)
     for index, delayedEvent in ipairs(ScootsVendor.delayedEvents) do
         if(delayedEvent.identifier == identifier) then
@@ -783,11 +792,7 @@ ScootsVendor.handleAutoForge = function(itemId, merchantIndex)
 end
 
 ScootsVendor.doAutoForgeLoop = function()
-    local queuedEvent, queueIndex = ScootsVendor.checkForDelayedIdentifier('auto-forge')
-    
-    if(queuedEvent) then
-        table.remove(ScootsVendor.delayedEvents, queueIndex)
-    end
+    ScootsVendor.dequeueDelayedEvent('auto-forge')
     
     if(ScootsVendor.autoForge.action == 'buy') then
         ScootsVendor.doAutoForgeLoopBuy()
@@ -961,7 +966,7 @@ function ScootsVendor__init()
     end
 end
 
-ScootsVendor.frames.master:SetScript('OnUpdate', ScootsVendor.updateLoop)
+ScootsVendor.frames.loopHolder:SetScript('OnUpdate', ScootsVendor.updateLoop)
 ScootsVendor.frames.master:SetScript('OnEvent', ScootsVendor.eventHandler)
 
 ScootsVendor.frames.master:RegisterEvent('MERCHANT_SHOW')
