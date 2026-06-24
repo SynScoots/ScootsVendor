@@ -8,6 +8,9 @@ ScootsVendor.interface.toggle = function()
     if(ScootsVendor.interface.built == true) then
         if(ScootsVendor.frames.master:IsVisible()) then
             CloseMerchant()
+            
+            _G['MerchantFrame']:Hide()
+            
             HideUIPanel(ScootsVendor.frames.master)
             ScootsVendor.isOpen = false
             ScootsVendor.frames.tooltip:Hide()
@@ -21,6 +24,10 @@ ScootsVendor.interface.toggle = function()
             if(ScootsVendor.suppressTextChange == nil) then
                 ScootsVendor.suppressTextChange = true
             end
+            
+            _G['MerchantFrame']:Show()
+            _G['MerchantFrame']:ClearAllPoints()
+            _G['MerchantFrame']:SetPoint('RIGHT', UIParent, 'LEFT', 0, 0)
             
             ShowUIPanel(ScootsVendor.frames.master)
             OpenBackpack()
