@@ -22,7 +22,7 @@ ScootsVendor.interface.toggle = function()
             _G['MerchantFrame']:Show()
             _G['MerchantFrame']:ClearAllPoints()
             --_G['MerchantFrame']:SetPoint('RIGHT', UIParent, 'LEFT', 0, 0)
-            _G['MerchantFrame']:SetPoint('LEFT', UIParent, 'LEFT', 0, 0)
+            _G['MerchantFrame']:SetPoint('RIGHT', UIParent, 'LEFT', 0, 0)
             
             ShowUIPanel(ScootsVendor.frames.master)
             OpenBackpack()
