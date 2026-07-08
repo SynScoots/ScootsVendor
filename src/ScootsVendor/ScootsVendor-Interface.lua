@@ -822,23 +822,23 @@ ScootsVendor.interface.buildItemList = function()
             elseif(IsModifiedClick('SPLITSTACK')) then
                 OpenStackSplitFrame(math.min(GetMerchantItemMaxStack(itemFrame.index), ScootsVendor.utility.getAffordableCount(itemFrame.index)), itemFrame, 'BOTTOMLEFT', 'TOPLEFT')
             elseif(button == 'LeftButton') then
-                if(ScootsVendor.autoForgeLevel ~= nil) then
-                    ScootsVendor.handleAutoForge(itemFrame.itemId, itemFrame.index)
+                if(ScootsVendor.mode == 'buyback') then
+                    BuybackItem(itemFrame.index)
                 else
-                    if(ScootsVendor.mode == 'purchase') then
+                    if(ScootsVendor.autoForgeLevel ~= nil) then
+                        ScootsVendor.handleAutoForge(itemFrame.itemId, itemFrame.index)
+                    else
                         PickupMerchantItem(itemFrame.index)
-                    elseif(ScootsVendor.mode == 'buyback') then
-                        BuybackItem(itemFrame.index)
                     end
                 end
             elseif(button == 'RightButton') then
-                if(ScootsVendor.autoForgeLevel ~= nil) then
-                    ScootsVendor.handleAutoForge(itemFrame.itemId, itemFrame.index)
+                if(ScootsVendor.mode == 'buyback') then
+                    BuybackItem(itemFrame.index)
                 else
-                    if(ScootsVendor.mode == 'purchase') then
+                    if(ScootsVendor.autoForgeLevel ~= nil) then
+                        ScootsVendor.handleAutoForge(itemFrame.itemId, itemFrame.index)
+                    else
                         BuyMerchantItem(itemFrame.index, 1)
-                    elseif(ScootsVendor.mode == 'buyback') then
-                        BuybackItem(itemFrame.index)
                     end
                 end
             end

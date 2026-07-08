@@ -29,3 +29,11 @@ Download this repository, then extract the `ScootsVendor` subdirectory from the 
 ![Total costs tooltip](./img/total-cost.png)
 
 ![The options panel](./img/options.png)
+
+## Support ##
+
+If you'd like to show support for my addons you can use the button below.
+
+Please do not feel obligated to do so - especially if you are not in a financially secure position - and please don't give beyond your means.
+
+<a href="https://www.buymeacoffee.com/Scoots"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=Scoots&button_colour=5F7FFF&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00" style="height:30px;" /></a>

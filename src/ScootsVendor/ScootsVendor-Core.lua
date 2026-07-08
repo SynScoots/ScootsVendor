@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.2.3',
+    ['version'] = '1.3.0',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -28,6 +28,7 @@ ScootsVendor = {
     ['autoForgeBatchSize'] = 1,
     ['queueTimer'] = 0,
     ['delayedEvents'] = {},
+    ['recentEvents'] = {},
 }
 
 ScootsVendor.preBuildChecks = function()
@@ -752,6 +753,10 @@ ScootsVendor.checkForDelayedIdentifier = function(identifer)
 end
 
 ScootsVendor.handleAutoForge = function(itemId, merchantIndex)
+    if(ScootsVendor.mode ~= 'purchase') then
+        return nil
+    end
+
     if(not ScootsVendor.utility.getNoRefundPerkEnabled()) then
         ScootsVendor.pushMessage('Perk "Disable Item Refund" must be enabled to auto-forge.')
         return nil
@@ -877,6 +882,21 @@ end
 ScootsVendor.updateLoop = function(_, elapsed)
     ScootsVendor.queueTimer = ScootsVendor.queueTimer + elapsed
     
+    if(ScootsVendor.recentEvents['MERCHANT_UPDATE']) then
+        ScootsVendor.recentEvents['MERCHANT_UPDATE'] = nil
+        ScootsVendor.handleMerchantUpdate()
+    end
+    
+    if(ScootsVendor.recentEvents['BAG_UPDATE']) then
+        ScootsVendor.recentEvents['BAG_UPDATE'] = nil
+        ScootsVendor.handleBagUpdate()
+    end
+    
+    if(ScootsVendor.recentEvents['PLAYER_MONEY']) then
+        ScootsVendor.recentEvents['PLAYER_MONEY'] = nil
+        ScootsVendor.handleMoneyUpdate()
+    end
+    
     if(#ScootsVendor.delayedEvents > 0) then
         for queueIndex = 1, #ScootsVendor.delayedEvents, 1 do
             if(ScootsVendor.delayedEvents[queueIndex].when <= ScootsVendor.queueTimer) then
@@ -890,7 +910,7 @@ ScootsVendor.updateLoop = function(_, elapsed)
     if(ScootsVendor.checkAutoForge == true) then
         ScootsVendor.checkAutoForge = nil
         
-        if(ScootsVendor.autoForge ~= nil) then
+        if(ScootsVendor.autoForge ~= nil and ScootsVendor.mode == 'purchase') then
             ScootsVendor.doAutoForgeLoop()
         end
     end
@@ -900,32 +920,25 @@ ScootsVendor.eventHandler = function(self, event)
     if(event == 'MERCHANT_SHOW') then
         ScootsVendor.openVendor()
     elseif(event == 'MERCHANT_UPDATE') then
-        if(ScootsVendor.mode == 'purchase') then
-            ScootsVendor.refreshPurchaseItemList()
-        elseif(ScootsVendor.mode == 'buyback') then
-            ScootsVendor.refreshBuybackItemList()
+        if(ScootsVendor.autoForge == nil) then
+            ScootsVendor.handleMerchantUpdate()
+        else
+            ScootsVendor.recentEvents['MERCHANT_UPDATE'] = true
         end
-        
-        ScootsVendor.updateQuickBuyback()
-        ScootsVendor.forceMouseEnterEvents()
     elseif(event == 'BAG_UPDATE') then
         if(ScootsVendor.isOpen) then
-            if(ScootsVendor.mode == 'purchase') then
-                ScootsVendor.refreshPurchaseItemList()
-            elseif(ScootsVendor.mode == 'buyback') then
-                ScootsVendor.refreshBuybackItemList()
-            end
-            
-            if(ScootsVendor.autoForge ~= nil) then
+            if(ScootsVendor.autoForge == nil) then
+                ScootsVendor.handleBagUpdate()
+            else
+                ScootsVendor.recentEvents['BAG_UPDATE'] = true
                 ScootsVendor.checkAutoForge = true
             end
-            
-            ScootsVendor.updatePlayerCurrencies()
-            ScootsVendor.forceMouseEnterEvents()
         end
     elseif(event == 'PLAYER_MONEY' or event == 'CURRENCY_DISPLAY_UPDATE' or event == 'CHAT_MSG_COMBAT_HONOR_GAIN') then
-        if(ScootsVendor.interface ~= nil and ScootsVendor.interface.built == true and ScootsVendor.frames.master:IsVisible()) then
-            ScootsVendor.updatePlayerCurrencies()
+        if(ScootsVendor.autoForge == nil) then
+            ScootsVendor.handleMoneyUpdate()
+        else
+            ScootsVendor.recentEvents['PLAYER_MONEY'] = true
         end
     elseif(event == 'MERCHANT_CLOSED') then
         ScootsVendor.interface.forceClosed()
@@ -933,6 +946,34 @@ ScootsVendor.eventHandler = function(self, event)
         SynastriaSafeInvoke('ScootsVendor__init')
     elseif(event == 'PLAYER_LOGOUT') then
         _G['SCOOTSVENDOR_STORAGE'] = ScootsVendor.storage
+    end
+end
+
+ScootsVendor.handleMerchantUpdate = function()
+    if(ScootsVendor.mode == 'purchase') then
+        ScootsVendor.refreshPurchaseItemList()
+    elseif(ScootsVendor.mode == 'buyback') then
+        ScootsVendor.refreshBuybackItemList()
+    end
+    
+    ScootsVendor.updateQuickBuyback()
+    ScootsVendor.forceMouseEnterEvents()
+end
+
+ScootsVendor.handleBagUpdate = function()
+    if(ScootsVendor.mode == 'purchase') then
+        ScootsVendor.refreshPurchaseItemList()
+    elseif(ScootsVendor.mode == 'buyback') then
+        ScootsVendor.refreshBuybackItemList()
+    end
+    
+    ScootsVendor.updatePlayerCurrencies()
+    ScootsVendor.forceMouseEnterEvents()
+end
+
+ScootsVendor.handleMoneyUpdate = function()
+    if(ScootsVendor.interface ~= nil and ScootsVendor.interface.built == true and ScootsVendor.frames.master:IsVisible()) then
+        ScootsVendor.updatePlayerCurrencies()
     end
 end
 

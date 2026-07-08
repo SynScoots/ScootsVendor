@@ -87,6 +87,8 @@ ScootsVendor.options.build = function()
     if(ScootsVendor.frames.options ~= nil) then
         return nil
     end
+    
+    InterfaceOptionsFrame:SetWidth(math.max(900, InterfaceOptionsFrame:GetWidth()))
 
     ScootsVendor.frames.options = CreateFrame('Frame', 'ScootsVendor-Options', UIParent)
     ScootsVendor.frames.options.name = ScootsVendor.title
