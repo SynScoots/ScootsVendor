@@ -337,6 +337,14 @@ end
 ScootsVendor.utility.sellItemBelowForgeLevel = function(itemId, forgeLevel)
     local hasForgeAtLevel = false
     local countSold = 0
+    
+    if(forgeLevel == nil) then
+        forgeLevel = ScootsVendor.autoForgeLevel
+        
+        if(forgeLevel == nil) then
+            forgeLevel = 0
+        end
+    end
 
     for bagIndex = 0, 4, 1 do
         for slotIndex = 1, GetContainerNumSlots(bagIndex), 1 do
