@@ -9,6 +9,7 @@ Features:
 - Relevant currency displays.
 - A display of the total cost to purchase attuneable items.
 - Options to always display certain very commonly purchased items.
+- A configurable auto-sell feature.
 
 Advantages over ScootsVendorFilter and ScootsVendorForge:
 
