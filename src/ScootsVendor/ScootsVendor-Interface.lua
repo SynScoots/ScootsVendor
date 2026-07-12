@@ -250,6 +250,37 @@ ScootsVendor.interface.buildHeader = function()
         end
     end)
     
+    -- Auto-sell
+    
+    ScootsVendor.frames.autoSellButton = CreateFrame('Button', 'ScootsVendor-AutoSellButton', ScootsVendor.frames.master, 'UIPanelButtonTemplate')
+    ScootsVendor.frames.autoSellButton:SetSize(80, 19)
+    ScootsVendor.frames.autoSellButton:SetPoint('TOPRIGHT', -34, -36)
+    ScootsVendor.frames.autoSellButton:SetText('Auto-sell')
+    
+    ScootsVendor.frames.autoSellButton:SetScript('OnClick', function()
+        ScootsVendor.doAutoSell()
+    end)
+    
+    ScootsVendor.frames.autoSellButton:SetScript('OnEnter', function()
+        GameTooltip:SetOwner(ScootsVendor.frames.autoSellButton, 'ANCHOR_TOPRIGHT')
+        GameTooltip:SetText('Auto-sell', HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
+        GameTooltip:AddLine('Sell all items that match any of the following criteria:', nil, nil, nil, true)
+        GameTooltip:AddLine('• Soulbound attuned equipment item.', nil, nil, nil, true)
+        GameTooltip:AddLine('• Soulbound attuneable equipment item that is not attuneable by your class.', nil, nil, nil, true)
+        
+        if(ScootsVendor.options.get('auto-sell-grey-white')) then
+            GameTooltip:AddLine('• Attuned equipment item that is grey or white quality.', nil, nil, nil, true)
+        end
+        
+        GameTooltip:AddLine(' ', nil, nil, nil, true)
+        GameTooltip:AddLine('Items that are legendary, heirloom, mythic, or part of an equipment manager set are excluded from this behaviour.', nil, nil, nil, true)
+        GameTooltip:AddLine(' ', nil, nil, nil, true)
+        GameTooltip:AddLine('You can add specific exceptions to this via the ScootsVendor options.', nil, nil, nil, true)
+        GameTooltip:Show()
+    end)
+    
+    ScootsVendor.frames.autoSellButton:SetScript('OnLeave', GameTooltip_Hide)
+    
     -- Showing total
     ScootsVendor.frames.master.showingTotal = ScootsVendor.frames.master:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightSmall')
     ScootsVendor.frames.master.showingTotal:SetPoint('TOPRIGHT', -34, -56)

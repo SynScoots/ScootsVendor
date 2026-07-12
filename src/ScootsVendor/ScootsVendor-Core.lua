@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.3.1',
+    ['version'] = '1.4.0',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -874,8 +874,102 @@ ScootsVendor.doAutoForgeLoopSell = function()
     BuyMerchantItem(ScootsVendor.autoForge.index, ScootsVendor.autoForge.count)
 end
 
-ScootsVendor.pushMessage = function(message)
-    print('\124cff' .. '98fb98' .. ScootsVendor.title .. ' ' .. ScootsVendor.version .. '\124r')
+ScootsVendor.doAutoSell = function()
+    local alwaysSellList = ScootsVendor.options.get('always-sell')
+    local neverSellList = ScootsVendor.options.get('never-sell')
+    local soldList = {}
+    local destroyedList = {}
+    
+    local nativeBagMap = {
+        [0] = 0xff,
+        [1] = 0x13,
+        [2] = 0x14,
+        [3] = 0x15,
+        [4] = 0x16,
+    }
+    
+    for bagIndex = 0, 4, 1 do
+        for slotIndex = 1, GetContainerNumSlots(bagIndex), 1 do
+            local slotOffset = 0
+            if(bagIndex == 0) then
+                slotOffset = 23
+            end
+            
+            local itemLink = Custom_GetItemLinkBySlot(nativeBagMap[bagIndex], slotOffset + slotIndex - 1)
+            
+            if(itemLink ~= nil) then
+                local itemId = CustomExtractItemId(itemLink)
+                local sell = false
+                
+                if(neverSellList[itemId]) then
+                    sell = false
+                elseif(alwaysSellList[itemId]) then
+                    sell = true
+                else
+                    local isAttuned = (GetItemAttuneForge(itemId) or -1) >= 0
+                    local isAttuneable = (CanAttuneItemHelper(itemId) or 0) > 0
+                    local isAttuneableAtAll = (IsAttunableBySomeone(itemId) or 0) ~= 0
+                    local isBound = Custom_IsItemSoulbound(nativeBagMap[bagIndex], slotOffset + slotIndex - 1)
+                    local isEquipmentSet = Custom_IsItemEquipMgr(nativeBagMap[bagIndex], slotOffset + slotIndex - 1)
+                    local isMythic = bit.band((select(1, GetItemTagsCustom(itemId))), 0x80) > 0
+                    
+                    if(isAttuneableAtAll and not isEquipmentSet and not isMythic) then
+                        local itemQuality = select(3, GetItemInfoCustom(itemId))
+                        
+                        if(itemQuality >= 5) then
+                            sell = false
+                        elseif(isBound and (isAttuned or not isAttuneable)) then
+                            sell = true
+                        elseif(itemQuality <= 1 and isAttuned) then
+                            if(ScootsVendor.options.get('auto-sell-grey-white')) then
+                                sell = true
+                            else
+                                sell = false
+                            end
+                        end
+                    end
+                end
+                
+                if(sell) then
+                    local itemPrice = select(11, GetItemInfo(itemId))
+                    
+                    if(itemPrice > 0) then
+                        UseContainerItem(bagIndex, slotIndex)
+                        table.insert(soldList, itemLink)
+                    else
+                        if(ScootsVendor.options.get('auto-sell-destroy-unsellable')) then
+                            PickupContainerItem(bagIndex, slotIndex)
+                            DeleteCursorItem()
+                            table.insert(destroyedList, itemLink)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    if(#soldList > 0) then
+        ScootsVendor.pushMessage('Auto-sell sold the following items:')
+        
+        for _, itemLink in pairs(soldList) do
+            ScootsVendor.pushMessage(itemLink, true)
+        end
+    end
+    
+    if(#destroyedList > 0) then
+        ScootsVendor.pushMessage('Auto-sell destroyed the following items:')
+        
+        for _, itemLink in pairs(destroyedList) do
+            ScootsVendor.pushMessage(itemLink, true)
+        end
+    end
+end
+
+ScootsVendor.pushMessage = function(message, suppressTitle)
+    if(suppressTitle ~= true) then
+        print('\124cff' .. '98fb98' .. ScootsVendor.title .. ' ' .. ScootsVendor.version .. '\124r')
+    end
+
     print(message)
 end
 
