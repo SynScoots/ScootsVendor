@@ -571,7 +571,7 @@ ScootsVendor.options.buildAutoSellOptions = function()
             ['framename'] = 'ScootsVendor-Options-AlwaysSellGroup',
             ['parent'] = ScootsVendor.frames.autoSellOptionsScrollChild,
             ['width'] = 310,
-            ['title'] = 'Always sell items'
+            ['title'] = 'Always sell items',
         })
         
         ScootsVendor.frames.alwaysSellGroup:SetPoint('TOPLEFT', ScootsVendor.frames.autoSellGreyWhite, 'BOTTOMLEFT', 0, -2)
@@ -685,7 +685,7 @@ ScootsVendor.options.buildAutoSellOptions = function()
             ['framename'] = 'ScootsVendor-Options-NeverSellGroup',
             ['parent'] = ScootsVendor.frames.autoSellOptionsScrollChild,
             ['width'] = 310,
-            ['title'] = 'Never sell items'
+            ['title'] = 'Never sell items',
         })
         
         ScootsVendor.frames.neverSellGroup:SetPoint('TOPLEFT', ScootsVendor.frames.alwaysSellGroup, 'TOPRIGHT', 10, 0)
@@ -1023,8 +1023,7 @@ ScootsVendor.options.insertItemList = function(data)
             else
                 childFrame:SetAlpha(1)
                 
-                local itemName, _, itemRarity, _, _, _,
-_, _, _, itemTexture = GetItemInfoCustom(itemId)
+                local itemName, _, itemRarity, _, _, _, _, _, _, itemTexture = GetItemInfoCustom(itemId)
 
                 childFrame.icon:SetTexture(itemTexture)
         

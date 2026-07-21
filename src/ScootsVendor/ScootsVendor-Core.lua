@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.4.0',
+    ['version'] = '1.5.0',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -927,6 +927,10 @@ ScootsVendor.doAutoSell = function()
                                 sell = false
                             end
                         end
+                    end
+                    
+                    if(sell and ScootsVendor.utility.itemCanUpgradeToAttuneable(itemId)) then
+                        sell = false
                     end
                 end
                 

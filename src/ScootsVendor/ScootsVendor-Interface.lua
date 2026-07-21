@@ -262,7 +262,7 @@ ScootsVendor.interface.buildHeader = function()
     end)
     
     ScootsVendor.frames.autoSellButton:SetScript('OnEnter', function()
-        GameTooltip:SetOwner(ScootsVendor.frames.autoSellButton, 'ANCHOR_TOPRIGHT')
+        GameTooltip:SetOwner(ScootsVendor.frames.autoSellButton, 'ANCHOR_RIGHT')
         GameTooltip:SetText('Auto-sell', HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
         GameTooltip:AddLine('Sell all items that match any of the following criteria:', nil, nil, nil, true)
         GameTooltip:AddLine('• Soulbound attuned equipment item.', nil, nil, nil, true)
