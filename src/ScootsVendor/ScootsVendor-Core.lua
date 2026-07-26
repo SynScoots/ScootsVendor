@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.6.1',
+    ['version'] = '1.6.2',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -801,7 +801,12 @@ ScootsVendor.handleAutoForge = function(itemId, merchantIndex)
     end
     
     if(ScootsVendor.utility.getAffordableCount(merchantIndex) < ScootsVendor.autoForgeBatchSize) then
-        ScootsVendor.pushMessage(string.format('You cannot afford %d of %s.', ScootsVendor.autoForgeBatchSize, ScootsVendor.utility.getItemLink(itemId)))
+        if(ScootsVendor.autoForge.attempts ~= nil and ScootsVendor.autoForge.attempts > 0) then
+            ScootsVendor.pushMessage(string.format('You ran out of the necessary currency to purchase %s after %d attempts.', ScootsVendor.utility.getItemLink(itemId), ScootsVendor.autoForge.attempts))
+        else
+            ScootsVendor.pushMessage(string.format('You cannot afford %d of %s.', ScootsVendor.autoForgeBatchSize, ScootsVendor.utility.getItemLink(itemId)))
+        end
+        
         return nil
     end
     
