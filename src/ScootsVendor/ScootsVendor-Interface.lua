@@ -320,7 +320,10 @@ ScootsVendor.interface.buildSidePanel = function()
     
     ScootsVendor.frames.resetFilters:SetScript('OnClick', function()
         ScootsVendor.utility.applyDefaultFilters()
-        ScootsVendor.refreshPurchaseItemList()
+        
+        if(ScootsVendor.mode ~= 'buyback') then
+            ScootsVendor.refreshPurchaseItemList()
+        end
         
         UIDropDownMenu_SetSelectedValue(ScootsVendor.frames.autoForgeLevel, 0)
         UIDropDownMenu_SetText(ScootsVendor.frames.autoForgeLevel, 'Auto-forge: off')
