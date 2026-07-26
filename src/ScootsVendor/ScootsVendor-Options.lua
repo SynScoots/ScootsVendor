@@ -570,7 +570,7 @@ ScootsVendor.options.buildAutoSellOptions = function()
         ScootsVendor.frames.alwaysSellGroup, leftGroupHeight = ScootsVendor.options.insertOptionsGroup({
             ['framename'] = 'ScootsVendor-Options-AlwaysSellGroup',
             ['parent'] = ScootsVendor.frames.autoSellOptionsScrollChild,
-            ['width'] = 310,
+            ['width'] = 305,
             ['title'] = 'Always sell items',
         })
         
@@ -655,7 +655,7 @@ ScootsVendor.options.buildAutoSellOptions = function()
         --
         
         ScootsVendor.frames.removeFromAlwaysSell = CreateFrame('Button', 'ScootsVendor-RemoveFromAlwaysSell', ScootsVendor.frames.alwaysSellGroup, 'UIPanelButtonTemplate')
-        ScootsVendor.frames.removeFromAlwaysSell:SetSize(120, 19)
+        ScootsVendor.frames.removeFromAlwaysSell:SetSize(120, 20)
         ScootsVendor.frames.removeFromAlwaysSell:SetPoint('TOPLEFT', ScootsVendor.frames.alwaysSellItemList, 'BOTTOMLEFT', 0, -4)
         ScootsVendor.frames.removeFromAlwaysSell:SetText('Remove selected')
         ScootsVendor.frames.removeFromAlwaysSell:Disable()
@@ -684,7 +684,7 @@ ScootsVendor.options.buildAutoSellOptions = function()
         ScootsVendor.frames.neverSellGroup, rightGroupHeight = ScootsVendor.options.insertOptionsGroup({
             ['framename'] = 'ScootsVendor-Options-NeverSellGroup',
             ['parent'] = ScootsVendor.frames.autoSellOptionsScrollChild,
-            ['width'] = 310,
+            ['width'] = 305,
             ['title'] = 'Never sell items',
         })
         
@@ -769,7 +769,7 @@ ScootsVendor.options.buildAutoSellOptions = function()
         --
         
         ScootsVendor.frames.removeFromNeverSell = CreateFrame('Button', 'ScootsVendor-RemoveFromNeverSell', ScootsVendor.frames.neverSellGroup, 'UIPanelButtonTemplate')
-        ScootsVendor.frames.removeFromNeverSell:SetSize(120, 19)
+        ScootsVendor.frames.removeFromNeverSell:SetSize(120, 20)
         ScootsVendor.frames.removeFromNeverSell:SetPoint('TOPLEFT', ScootsVendor.frames.neverSellItemList, 'BOTTOMLEFT', 0, -4)
         ScootsVendor.frames.removeFromNeverSell:SetText('Remove selected')
         ScootsVendor.frames.removeFromNeverSell:Disable()

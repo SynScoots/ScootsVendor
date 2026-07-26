@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.5.0',
+    ['version'] = '1.6.0',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -206,7 +206,12 @@ ScootsVendor.getBuybackItemList = function()
         if(itemLink) then
             table.insert(ScootsVendor.itemList, {
                 ['index'] = buybackIndex,
-                ['id'] = CustomExtractItemId(itemLink)
+                ['id'] = CustomExtractItemId(itemLink),
+            })
+        else
+            table.insert(ScootsVendor.itemList, {
+                ['index'] = buybackIndex,
+                ['id'] = nil,
             })
         end
     end
@@ -392,120 +397,132 @@ ScootsVendor.renderItemList = function()
         else
             local item = ScootsVendor.itemList[itemIndex]
             
-            local itemName, _, _, _, _, _, _, _, _, itemTexture = GetItemInfoCustom(item.id)
-            local price, quantity, stock, isUseable, extendedCost
-            
-            if(ScootsVendor.mode == 'purchase') then
-                _, _, price, quantity, stock, isUseable, extendedCost = GetMerchantItemInfo(item.index)
-            elseif(ScootsVendor.mode == 'buyback') then
-                _, _, price, quantity, stock, isUseable = GetBuybackItemInfo(item.index)
-            end
-            
-            itemFrame.index = item.index
-            itemFrame.itemId = item.id
-            
-            itemFrame.icon:SetTexture(itemTexture)
-            itemFrame.name:SetText(itemName)
-            
-            if(stock > 0) then
-                itemFrame.stock:Show()
-                itemFrame.stock:SetText('(' .. stock .. ')')
-            else
-                itemFrame.stock:Hide()
-            end
-            
-            if(quantity > 1) then
-                itemFrame.quantity:Show()
-                itemFrame.quantity:SetText(quantity)
-            else
-                itemFrame.quantity:Hide()
-            end
-            
-            if(isUseable == nil) then
-                itemFrame.icon:SetVertexColor(1, 0, 0)
-            else
-                itemFrame.icon:SetVertexColor(1, 1, 1)
-            end
-            
-            local attunedAt = GetItemAttuneForge(item.id)
-            if(attunedAt == -1) then
-                itemFrame.name:SetTextColor(1, 1, 1)
-            
-                if(CanAttuneItemHelper(item.id) > 0) then
-                    itemFrame.background:SetTexture(1, 1, 1)
+            if(item.id ~= nil) then
+                local itemName, _, _, _, _, _, _, _, _, itemTexture = GetItemInfoCustom(item.id)
+                local price, quantity, stock, isUseable, extendedCost
+                
+                if(ScootsVendor.mode == 'purchase') then
+                    _, _, price, quantity, stock, isUseable, extendedCost = GetMerchantItemInfo(item.index)
+                elseif(ScootsVendor.mode == 'buyback') then
+                    _, _, price, quantity, stock, isUseable = GetBuybackItemInfo(item.index)
+                end
+                
+                itemFrame.index = item.index
+                itemFrame.itemId = item.id
+                
+                itemFrame.icon:SetTexture(itemTexture)
+                itemFrame.name:SetText(itemName)
+                
+                if(stock > 0) then
+                    itemFrame.stock:Show()
+                    itemFrame.stock:SetText('(' .. stock .. ')')
                 else
-                    itemFrame.background:SetTexture(0.5, 0.5, 0.5)
-                end
-            elseif(attunedAt == 0) then
-                itemFrame.name:SetTextColor(0.65, 1, 0.5)
-                itemFrame.background:SetTexture(0.65, 1, 0.5)
-            elseif(attunedAt == 1) then
-                itemFrame.name:SetTextColor(0.5, 0.5, 1)
-                itemFrame.background:SetTexture(0.5, 0.5, 1)
-            elseif(attunedAt == 2) then
-                itemFrame.name:SetTextColor(1, 0.65, 0.5)
-                itemFrame.background:SetTexture(1, 0.65, 0.5)
-            elseif(attunedAt == 3) then
-                itemFrame.name:SetTextColor(1, 1, 0.65)
-                itemFrame.background:SetTexture(1, 1, 0.65)
-            end
-            
-            local prior, currencyFrame
-            
-            if(price > 0) then
-                currencyFrame = ScootsVendor.interface.attachGoldFrame(itemFrame, price)
-                currencyFrame:ClearAllPoints()
-                currencyFrame:SetPoint('TOPLEFT', itemFrame.name, 'BOTTOMLEFT', 0, -1)
-                
-                prior = currencyFrame
-            end
-            
-            if(extendedCost == 1) then
-                local honourPoints, arenaPoints, otherCostCount = GetMerchantItemCostInfo(item.index)
-                
-                local currencyList = {}
-                
-                if(honourPoints > 0) then
-                    table.insert(currencyList, {
-                        ['count'] = honourPoints,
-                        ['id'] = 43308
-                    })
+                    itemFrame.stock:Hide()
                 end
                 
-                if(arenaPoints > 0) then
-                    table.insert(currencyList, {
-                        ['count'] = arenaPoints,
-                        ['id'] = 43307
-                    })
+                if(quantity > 1) then
+                    itemFrame.quantity:Show()
+                    itemFrame.quantity:SetText(quantity)
+                else
+                    itemFrame.quantity:Hide()
                 end
                 
-                if(otherCostCount > 0) then
-                    for currencyIndex = 1, otherCostCount, 1 do
-                        local _, currencyCount, currencyItemLink = GetMerchantItemCostItem(item.index, currencyIndex)
-                        
-                        if(currencyItemLink ~= nil) then
-                            table.insert(currencyList, {
-                                ['count'] = currencyCount,
-                                ['id'] = CustomExtractItemId(currencyItemLink)
-                            })
+                if(isUseable == nil) then
+                    itemFrame.icon:SetVertexColor(1, 0, 0)
+                else
+                    itemFrame.icon:SetVertexColor(1, 1, 1)
+                end
+                
+                local attunedAt = GetItemAttuneForge(item.id)
+                if(attunedAt == -1) then
+                    itemFrame.name:SetTextColor(1, 1, 1)
+                
+                    if(CanAttuneItemHelper(item.id) > 0) then
+                        itemFrame.background:SetTexture(1, 1, 1)
+                    else
+                        itemFrame.background:SetTexture(0.5, 0.5, 0.5)
+                    end
+                elseif(attunedAt == 0) then
+                    itemFrame.name:SetTextColor(0.65, 1, 0.5)
+                    itemFrame.background:SetTexture(0.65, 1, 0.5)
+                elseif(attunedAt == 1) then
+                    itemFrame.name:SetTextColor(0.5, 0.5, 1)
+                    itemFrame.background:SetTexture(0.5, 0.5, 1)
+                elseif(attunedAt == 2) then
+                    itemFrame.name:SetTextColor(1, 0.65, 0.5)
+                    itemFrame.background:SetTexture(1, 0.65, 0.5)
+                elseif(attunedAt == 3) then
+                    itemFrame.name:SetTextColor(1, 1, 0.65)
+                    itemFrame.background:SetTexture(1, 1, 0.65)
+                end
+                
+                local prior, currencyFrame
+                
+                if(price > 0) then
+                    currencyFrame = ScootsVendor.interface.attachGoldFrame(itemFrame, price)
+                    currencyFrame:ClearAllPoints()
+                    currencyFrame:SetPoint('TOPLEFT', itemFrame.name, 'BOTTOMLEFT', 0, -1)
+                    
+                    prior = currencyFrame
+                end
+                
+                if(extendedCost == 1) then
+                    local honourPoints, arenaPoints, otherCostCount = GetMerchantItemCostInfo(item.index)
+                    
+                    local currencyList = {}
+                    
+                    if(honourPoints > 0) then
+                        table.insert(currencyList, {
+                            ['count'] = honourPoints,
+                            ['id'] = 43308
+                        })
+                    end
+                    
+                    if(arenaPoints > 0) then
+                        table.insert(currencyList, {
+                            ['count'] = arenaPoints,
+                            ['id'] = 43307
+                        })
+                    end
+                    
+                    if(otherCostCount > 0) then
+                        for currencyIndex = 1, otherCostCount, 1 do
+                            local _, currencyCount, currencyItemLink = GetMerchantItemCostItem(item.index, currencyIndex)
+                            
+                            if(currencyItemLink ~= nil) then
+                                table.insert(currencyList, {
+                                    ['count'] = currencyCount,
+                                    ['id'] = CustomExtractItemId(currencyItemLink)
+                                })
+                            end
+                        end
+                    end
+                    
+                    if(#currencyList > 0) then
+                        for _, currency in ipairs(currencyList) do
+                            currencyFrame = ScootsVendor.interface.attachCurrencyFrame(itemFrame, currency.count, currency.id)
+                            currencyFrame:ClearAllPoints()
+                            
+                            if(prior == nil) then
+                                currencyFrame:SetPoint('TOPLEFT', itemFrame.name, 'BOTTOMLEFT', 0, -1)
+                            else
+                                currencyFrame:SetPoint('LEFT', prior, 'RIGHT', 2, 0)
+                            end
+                            
+                            prior = currencyFrame
                         end
                     end
                 end
-                
-                if(#currencyList > 0) then
-                    for _, currency in ipairs(currencyList) do
-                        currencyFrame = ScootsVendor.interface.attachCurrencyFrame(itemFrame, currency.count, currency.id)
-                        currencyFrame:ClearAllPoints()
-                        
-                        if(prior == nil) then
-                            currencyFrame:SetPoint('TOPLEFT', itemFrame.name, 'BOTTOMLEFT', 0, -1)
-                        else
-                            currencyFrame:SetPoint('LEFT', prior, 'RIGHT', 2, 0)
-                        end
-                        
-                        prior = currencyFrame
-                    end
-                end
+            elseif(ScootsVendor.mode == 'buyback') then
+                itemFrame.index = item.index
+                itemFrame.itemId = nil
+                itemFrame.icon:SetTexture('Interface\\Icons\\INV_Misc_QuestionMark')
+                itemFrame.name:SetText('<Unknown Item>')
+                itemFrame.stock:Hide()
+                itemFrame.quantity:Hide()
+                itemFrame.icon:SetVertexColor(1, 1, 1)
+                itemFrame.name:SetTextColor(1, 1, 1)
+                itemFrame.background:SetTexture(1, 1, 1)
             end
             
             itemFrame:Show()
@@ -688,25 +705,31 @@ ScootsVendor.updateQuickBuyback = function()
     
     local itemLink = GetBuybackItemLink(numBuybackItems)
     
-    if(not itemLink) then
-        ScootsVendor.frames.quickBuyback:Hide()
-        return nil
-    end
-    
-    local itemId = CustomExtractItemId(itemLink)
-    local itemName, itemTexture, _, itemQuantity = GetBuybackItemInfo(numBuybackItems)
-    
-    ScootsVendor.frames.quickBuyback:Show()
-    ScootsVendor.frames.quickBuyback.itemId = itemId
-    ScootsVendor.frames.quickBuyback.index = numBuybackItems
-    
-    ScootsVendor.frames.quickBuyback.icon:SetTexture(itemTexture)
-    ScootsVendor.frames.quickBuyback.name:SetText(itemName)
-    
-    if((itemQuantity or 1) > 1) then
-        ScootsVendor.frames.quickBuyback.quantity:Show()
-        ScootsVendor.frames.quickBuyback.quantity:SetText(itemQuantity)
+    if(itemLink ~= nil) then
+        local itemId = CustomExtractItemId(itemLink)
+        local itemName, itemTexture, _, itemQuantity = GetBuybackItemInfo(numBuybackItems)
+        
+        ScootsVendor.frames.quickBuyback:Show()
+        ScootsVendor.frames.quickBuyback.itemId = itemId
+        ScootsVendor.frames.quickBuyback.index = numBuybackItems
+        
+        ScootsVendor.frames.quickBuyback.icon:SetTexture(itemTexture)
+        ScootsVendor.frames.quickBuyback.name:SetText(itemName)
+        
+        if((itemQuantity or 1) > 1) then
+            ScootsVendor.frames.quickBuyback.quantity:Show()
+            ScootsVendor.frames.quickBuyback.quantity:SetText(itemQuantity)
+        else
+            ScootsVendor.frames.quickBuyback.quantity:Hide()
+        end
     else
+        ScootsVendor.frames.quickBuyback:Show()
+        ScootsVendor.frames.quickBuyback.itemId = nil
+        ScootsVendor.frames.quickBuyback.index = numBuybackItems
+        
+        ScootsVendor.frames.quickBuyback.icon:SetTexture('Interface\\Icons\\INV_Misc_QuestionMark')
+        ScootsVendor.frames.quickBuyback.name:SetText('<Unknown Item>')
+        
         ScootsVendor.frames.quickBuyback.quantity:Hide()
     end
 end

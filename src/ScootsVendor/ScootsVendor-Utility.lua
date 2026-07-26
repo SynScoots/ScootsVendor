@@ -246,6 +246,8 @@ ScootsVendor.utility.itemCanForge = function(itemId)
 end
     
 ScootsVendor.utility.applyDefaultFilters = function()
+    local defaults = ScootsVendor.options.get('default-filters')
+
     local fieldMap = {
         ['can-afford'] = ScootsVendor.frames.canAffordFilter,
         ['show-non-equipment'] = ScootsVendor.frames.showNonEquipmentFilter,
@@ -270,15 +272,22 @@ ScootsVendor.utility.applyDefaultFilters = function()
         },
     }
     
-    for key, value in pairs(ScootsVendor.filters) do
+    for key, value in pairs(defaults) do
         ScootsVendor.filters[key] = value
         
         if(fieldMap[key] ~= nil) then
             if(radioMap[key] == nil) then
                 fieldMap[key]:SetChecked(value)
             else
-                fieldMap[key][radioMap[key][value]]:SetChecked(true)
-                fieldMap[key][radioMap[key][value]]:Disable()
+                for radioKey, fieldIndex in pairs(radioMap[key]) do
+                    if(radioKey == value) then
+                        fieldMap[key][radioMap[key][radioKey]]:SetChecked(true)
+                        fieldMap[key][radioMap[key][radioKey]]:Disable()
+                    else
+                        fieldMap[key][radioMap[key][radioKey]]:SetChecked(false)
+                        fieldMap[key][radioMap[key][radioKey]]:Enable()
+                    end
+                end
             end
         end
     end

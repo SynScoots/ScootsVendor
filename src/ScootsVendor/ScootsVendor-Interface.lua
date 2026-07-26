@@ -182,16 +182,16 @@ ScootsVendor.interface.buildHeader = function()
     
     ScootsVendor.frames.quickBuyback:SetSize(200, 38)
     ScootsVendor.frames.quickBuyback:SetBackdrop({
-        bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
-        edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border',
-        tile = true,
-        tileSize = 16,
-        edgeSize = 16,
-        insets = {
-            left = 3,
-            right = 3,
-            top = 3,
-            bottom = 3,
+        ['bgFile'] = 'Interface\\Tooltips\\UI-Tooltip-Background',
+        ['edgeFile'] = 'Interface\\Tooltips\\UI-Tooltip-Border',
+        ['tile'] = true,
+        ['tileSize'] = 16,
+        ['edgeSize'] = 16,
+        ['insets'] = {
+            ['left'] = 3,
+            ['right'] = 3,
+            ['top'] = 3,
+            ['bottom'] = 3,
         },
     })
     ScootsVendor.frames.quickBuyback:SetBackdropColor(0, 0, 0, 0.35)
@@ -292,13 +292,49 @@ ScootsVendor.interface.buildSidePanel = function()
         ['framename'] = 'ScootsVendor-Filters-Search',
         ['parent'] = ScootsVendor.frames.master,
         ['label'] = 'Search',
-        ['width'] = 140,
+        ['width'] = 116,
         ['justify'] = 'LEFT',
         ['tooltip'] = 'Only show items where the name contains what you type in this field.',
         ['setValueCallback'] = function(value)
             ScootsVendor.setFilter('search', value)
         end
     })
+    
+    -- Reset filters
+    ScootsVendor.frames.resetFilters = CreateFrame('Button', 'ScootsVendor-Filters-Reset', ScootsVendor.frames.master)
+    ScootsVendor.frames.resetFilters:SetSize(23, 23)
+    ScootsVendor.frames.resetFilters:SetPoint('LEFT', ScootsVendor.frames.searchFilter, 'RIGHT', 3, 0)
+    
+    ScootsVendor.frames.resetFilters:SetNormalTexture('Interface\\AddOns\\ScootsVendor\\Textures\\Refresh-Up')
+    ScootsVendor.frames.resetFilters:SetPushedTexture('Interface\\AddOns\\ScootsVendor\\Textures\\Refresh-Down')
+    ScootsVendor.frames.resetFilters:SetDisabledTexture('Interface\\AddOns\\ScootsVendor\\Textures\\Refresh-Disabled')
+    ScootsVendor.frames.resetFilters:SetHighlightTexture('Interface\\Buttons\\UI-Common-MouseHilight', 'ADD')
+    
+    ScootsVendor.frames.resetFilters:SetScript('OnEnter', function()
+        GameTooltip:SetOwner(ScootsVendor.frames.resetFilters, 'ANCHOR_TOPLEFT')
+        GameTooltip:SetText('Reset filters to default values.', nil, nil, nil, nil, 1)
+        GameTooltip:Show()
+    end)
+    
+    ScootsVendor.frames.resetFilters:SetScript('OnLeave', GameTooltip_Hide)
+    
+    ScootsVendor.frames.resetFilters:SetScript('OnClick', function()
+        ScootsVendor.utility.applyDefaultFilters()
+        ScootsVendor.refreshPurchaseItemList()
+        
+        UIDropDownMenu_SetSelectedValue(ScootsVendor.frames.autoForgeLevel, 0)
+        UIDropDownMenu_SetText(ScootsVendor.frames.autoForgeLevel, 'Auto-forge: off')
+        
+        ScootsVendor.autoForgeLevel = nil
+        ScootsVendor.activeAutoForge = nil
+        ScootsVendor.autoForgeAttempts = nil
+        ScootsVendor.waitingForAutoForgeAttempts = nil
+        
+        ScootsVendor.frames.master.autoForgeBatchHeader:Hide()
+        ScootsVendor.frames.autoForgeBatchDecrement:Hide()
+        ScootsVendor.frames.autoForgeBatchSize:Hide()
+        ScootsVendor.frames.autoForgeBatchIncrement:Hide()
+    end)
     
     ScootsVendor.frames.searchFilter:SetPoint('TOPLEFT', ScootsVendor.frames.master, 'TOPLEFT', 26, -76)
     
@@ -963,16 +999,16 @@ ScootsVendor.interface.getCurrencyFrame = function(protected)
     if(ScootsVendor.frames.currency[frameType][consumedFrames] == nil) then
         local currencyFrame = CreateFrame('Frame', 'ScootsVendor-CurrencyFrame-' .. tostring(consumedFrames) .. '-' .. frameType, ScootsVendor.frames.master)
         currencyFrame:SetBackdrop({
-            bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
-            edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border',
-            tile = true,
-            tileSize = 16,
-            edgeSize = 8,
-            insets = {
-                left = 2,
-                right = 2,
-                top = 2,
-                bottom = 2,
+            ['bgFile'] = 'Interface\\Tooltips\\UI-Tooltip-Background',
+            ['edgeFile'] = 'Interface\\Tooltips\\UI-Tooltip-Border',
+            ['tile'] = true,
+            ['tileSize'] = 16,
+            ['edgeSize'] = 8,
+            ['insets'] = {
+                ['left'] = 2,
+                ['right'] = 2,
+                ['top'] = 2,
+                ['bottom'] = 2,
             },
         })
         currencyFrame:SetBackdropColor(0, 0, 0, 0.35)
@@ -1060,16 +1096,16 @@ ScootsVendor.interface.getGoldFrame = function(protected)
     if(ScootsVendor.frames.gold[frameType][consumedFrames] == nil) then
         local currencyFrame = CreateFrame('Frame', 'ScootsVendor-GoldFrame-' .. tostring(consumedFrames) .. '-' .. frameType, ScootsVendor.frames.master)
         currencyFrame:SetBackdrop({
-            bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
-            edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border',
-            tile = true,
-            tileSize = 16,
-            edgeSize = 8,
-            insets = {
-                left = 2,
-                right = 2,
-                top = 2,
-                bottom = 2,
+            ['bgFile'] = 'Interface\\Tooltips\\UI-Tooltip-Background',
+            ['edgeFile'] = 'Interface\\Tooltips\\UI-Tooltip-Border',
+            ['tile'] = true,
+            ['tileSize'] = 16,
+            ['edgeSize'] = 8,
+            ['insets'] = {
+                ['left'] = 2,
+                ['right'] = 2,
+                ['top'] = 2,
+                ['bottom'] = 2,
             },
         })
         currencyFrame:SetBackdropColor(0, 0, 0, 0.35)
