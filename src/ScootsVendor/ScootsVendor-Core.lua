@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.6.2',
+    ['version'] = '1.7.0',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -29,6 +29,7 @@ ScootsVendor = {
     ['queueTimer'] = 0,
     ['delayedEvents'] = {},
     ['recentEvents'] = {},
+    ['prestiged'] = false,
 }
 
 ScootsVendor.preBuildChecks = function()
@@ -1105,6 +1106,10 @@ end
 
 function ScootsVendor__init()
     ScootsVendor.synastriaApiLoaded = true
+    
+    if((CMCGetMultiClassEnabled() or 1) == 2) then
+        ScootsVendor.prestiged = true
+    end
     
     local storage = _G['SCOOTSVENDOR_STORAGE']
     

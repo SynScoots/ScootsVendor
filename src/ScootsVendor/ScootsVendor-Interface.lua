@@ -1000,7 +1000,7 @@ ScootsVendor.interface.getCurrencyFrame = function(protected)
     ScootsVendor.consumedFrames.currency[frameType] = consumedFrames
     
     if(ScootsVendor.frames.currency[frameType][consumedFrames] == nil) then
-        local currencyFrame = CreateFrame('Frame', 'ScootsVendor-CurrencyFrame-' .. tostring(consumedFrames) .. '-' .. frameType, ScootsVendor.frames.master)
+        local currencyFrame = CreateFrame((protected and 'Button') or 'Frame', 'ScootsVendor-CurrencyFrame-' .. tostring(consumedFrames) .. '-' .. frameType, ScootsVendor.frames.master)
         currencyFrame:SetBackdrop({
             ['bgFile'] = 'Interface\\Tooltips\\UI-Tooltip-Background',
             ['edgeFile'] = 'Interface\\Tooltips\\UI-Tooltip-Border',
@@ -1025,6 +1025,14 @@ ScootsVendor.interface.getCurrencyFrame = function(protected)
         currencyFrame.text = currencyFrame:CreateFontString(nil, 'OVERLAY', 'GameFontHighlightSmall')
         currencyFrame.text:SetPoint('RIGHT', -4, 0)
         
+        if(protected and ScootsVendor.prestiged) then
+            currencyFrame:SetScript('OnClick', function()
+                if(IsAltKeyDown() and currencyFrame.itemId ~= nil) then
+                    SendChatMessage('.coerceitem ' .. tostring(currencyFrame.itemId), 'SAY')
+                end
+            end)
+        end
+        
         ScootsVendor.frames.currency[frameType][consumedFrames] = currencyFrame
     end
     
@@ -1035,6 +1043,7 @@ end
 ScootsVendor.interface.attachCurrencyFrame = function(parentFrame, price, itemId, protected)
     local currencyFrame = ScootsVendor.interface.getCurrencyFrame(protected)
     currencyFrame:SetParent(parentFrame)
+    
     
     local _, itemLink, _, _, _, _, _, _, _, texture = GetItemInfoCustom(itemId)
     
@@ -1047,6 +1056,7 @@ ScootsVendor.interface.attachCurrencyFrame = function(parentFrame, price, itemId
     currencyFrame.icon:SetTexture(texture)
     currencyFrame.text:SetText(price)
     currencyFrame:SetSize(currencyFrame.icon:GetWidth() + currencyFrame.text:GetWidth() + 8, currencyFrame.text:GetHeight() + 6)
+    currencyFrame.itemId = itemId
         
     currencyFrame:SetScript('OnEnter', function()
         if(parentFrame.itemId ~= nil) then
