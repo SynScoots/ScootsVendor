@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.7.0',
+    ['version'] = '1.7.1',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -802,12 +802,7 @@ ScootsVendor.handleAutoForge = function(itemId, merchantIndex)
     end
     
     if(ScootsVendor.utility.getAffordableCount(merchantIndex) < ScootsVendor.autoForgeBatchSize) then
-        if(ScootsVendor.autoForge.attempts ~= nil and ScootsVendor.autoForge.attempts > 0) then
-            ScootsVendor.pushMessage(string.format('You ran out of the necessary currency to purchase %s after %d attempts.', ScootsVendor.utility.getItemLink(itemId), ScootsVendor.autoForge.attempts))
-        else
-            ScootsVendor.pushMessage(string.format('You cannot afford %d of %s.', ScootsVendor.autoForgeBatchSize, ScootsVendor.utility.getItemLink(itemId)))
-        end
-        
+        ScootsVendor.pushMessage(string.format('You cannot afford %d of %s.', ScootsVendor.autoForgeBatchSize, ScootsVendor.utility.getItemLink(itemId)))
         return nil
     end
     
@@ -865,7 +860,8 @@ ScootsVendor.doAutoForgeLoopBuy = function()
         return nil
     elseif(ScootsVendor.utility.getAffordableCount(ScootsVendor.autoForge.index) < ScootsVendor.autoForgeBatchSize) then
         ScootsVendor.pushMessage(string.format(
-            'Funds depleted. You cannot afford %d of %s.',
+            'Funds depleted after %d attempts. You can no longer afford %d of %s.',
+            ScootsVendor.autoForge.attempts,
             ScootsVendor.autoForgeBatchSize,
             ScootsVendor.utility.getItemLink(ScootsVendor.autoForge.id)
         ))
@@ -935,7 +931,7 @@ ScootsVendor.doAutoSell = function()
                 elseif(alwaysSellList[itemId]) then
                     sell = true
                 else
-                    local isAttuned = (GetItemAttuneForge(itemId) or -1) >= 0
+                    local isAttuned = (tonumber(GetItemLinkAttuneProgress(itemLink) or 0)) >= 100
                     local isAttuneable = (CanAttuneItemHelper(itemId) or 0) > 0
                     local isAttuneableAtAll = (IsAttunableBySomeone(itemId) or 0) ~= 0
                     local isBound = Custom_IsItemSoulbound(nativeBagMap[bagIndex], slotOffset + slotIndex - 1)

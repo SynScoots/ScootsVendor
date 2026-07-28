@@ -1044,7 +1044,6 @@ ScootsVendor.interface.attachCurrencyFrame = function(parentFrame, price, itemId
     local currencyFrame = ScootsVendor.interface.getCurrencyFrame(protected)
     currencyFrame:SetParent(parentFrame)
     
-    
     local _, itemLink, _, _, _, _, _, _, _, texture = GetItemInfoCustom(itemId)
     
     if(itemId == 43307) then
