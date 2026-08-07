@@ -2,8 +2,6 @@ ScootsVendor.options = {}
 
 ScootsVendor.options.load = function()
     local defaultOptions = {
-        ['drag-window'] = true,
-        ['bypass-items'] = {},
         ['default-filters'] = {
             ['can-afford'] = false,
             ['show-non-equipment'] = true,
@@ -13,6 +11,21 @@ ScootsVendor.options.load = function()
             ['attuned-level'] = -1,
         },
         ['auto-forge-batch-size'] = 1,
+        ['drag-window'] = true,
+        ['bypass-items'] = {
+            [47241] = true, -- Emblem of Triumph
+            [44115] = true, -- Wintergrasp Commendation
+            [63646] = true, -- Wintergrasp Commendation x10
+            [60244] = true, -- Commendation of Valor
+            [63647] = true, -- Commendation of Valor x10
+            [60232] = true, -- Mystery Box
+            [21215] = true, -- Graccu's Mince Meat Fruitcake
+            [42225] = true, -- Dragon's Eye
+            [26045] = true, -- Halaa Battle Token
+            [24579] = true, -- Mark of Honor Hold
+            [24581] = true, -- Mark of Thrallmar
+            [63711] = true, -- Currency Boost Token
+        },
         ['auto-sell-destroy-unsellable'] = false,
         ['auto-sell-grey-white'] = false,
         ['always-sell'] = {},
@@ -50,13 +63,6 @@ ScootsVendor.options.load = function()
             else
                 options[name] = defaultOptions[name]
             end
-        end
-    end
-    
-    local bypassItems = ScootsVendor.options.getItemsThatBypassFilters()
-    for _, item in pairs(bypassItems) do
-        if(options['bypass-items'][item.id] == nil) then
-            options['bypass-items'][item.id] = true
         end
     end
     
@@ -173,31 +179,111 @@ ScootsVendor.options.buildGeneralOptions = function()
         
         --
         
-        local bypassItems = ScootsVendor.options.getItemsThatBypassFilters()
-        ScootsVendor.frames.itemsBypassingFiltersOptions = {}
-        local prior = ScootsVendor.frames.draggableOption
-        local bypassFiltersItemsState = ScootsVendor.options.get('bypass-items') or {}
+        local groupHeight
+        ScootsVendor.frames.itemsBypassFiltersGroup, groupHeight = ScootsVendor.options.insertOptionsGroup({
+            ['framename'] = 'ScootsVendor-Options-ItemsBypassFiltersGroup',
+            ['parent'] = ScootsVendor.frames.optionsScrollChild,
+            ['width'] = 305,
+            ['title'] = 'Items bypassing filters',
+            ['subtitle'] = 'Items in this list will ignore the "Show non-equipment" and "Exclude items in bag" filters.',
+        })
         
-        for _, item in ipairs(bypassItems) do
-            local bypassFilterItemOption = ScootsVendor.options.insertOptionsCheckbox({
-                ['framename'] = 'ScootsVendor-Options-ItemBypassingFilters-' .. tostring(item.id),
-                ['parent'] = ScootsVendor.frames.optionsScrollChild,
-                ['prior'] = prior,
-                ['offset'] = -5,
-                ['name'] = item['option-name'],
-                ['defaultState'] = (bypassFiltersItemsState[item.id] == true),
-                ['tooltip'] = item['option-tooltip'],
-                ['onClickEvent'] = function(self)
-                    bypassFiltersItemsState[item.id] = ((self:GetChecked() and true) or false)
-                    ScootsVendor.options.set('bypass-items', bypassFiltersItemsState)
-                end,
-            })
+        ScootsVendor.frames.itemsBypassFiltersGroup:SetPoint('TOPLEFT', ScootsVendor.frames.draggableOption, 'BOTTOMLEFT', 0, -2)
         
-            table.insert(ScootsVendor.frames.itemsBypassingFiltersOptions, bypassFilterItemOption)
-            prior = bypassFilterItemOption
+        --
+
+        ScootsVendor.frames.itemsBypassFiltersCatcher = ScootsVendor.options.insertItemCatcher({
+            ['framename'] = 'ScootsVendor-Options-ItemsBypassFiltersCatcher',
+            ['parent'] = ScootsVendor.frames.itemsBypassFiltersGroup,
+            ['prior'] = ScootsVendor.frames.itemsBypassFiltersGroup.subtitle,
+            ['text'] = 'Drop item here to add to list',
+            ['callback'] = function(id, link)
+                local dropType, itemId, itemLink = GetCursorInfo()
+                ClearCursor()
+                
+                if(dropType == 'item') then
+                    local bypassItems = ScootsVendor.options.get('bypass-items')
+                    
+                    if(bypassItems[itemId]) then
+                        ScootsVendor.pushMessage(itemLink .. ' already in "Items bypassing filters" list.')
+                        return nil
+                    end
+                    
+                    bypassItems[itemId] = true
+                    ScootsVendor.options.set('bypass-items', bypassItems)
+                    ScootsVendor.frames.itemsBypassFiltersList.dataChanged()
+                end
+            end
+        })
+        
+        groupHeight = groupHeight + ScootsVendor.frames.itemsBypassFiltersCatcher:GetHeight() + 10
+        
+        --
+        
+        ScootsVendor.frames.itemsBypassFiltersList = ScootsVendor.options.insertItemList({
+            ['framename'] = 'ScootsVendor-Options-ItemsBypassFiltersList',
+            ['parent'] = ScootsVendor.frames.itemsBypassFiltersGroup,
+            ['prior'] = ScootsVendor.frames.itemsBypassFiltersCatcher,
+            ['height'] = 200,
+            ['childCount'] = 10,
+            ['getItemsCallback'] = function()
+                local itemList = {}
+                local clearSelected = true
+                
+                for itemId, _ in pairs(ScootsVendor.options.get('bypass-items')) do
+                    table.insert(itemList, itemId)
+                    
+                    if(ScootsVendor.frames.itemsBypassFiltersList.selectedItemId == itemId) then
+                        clearSelected = false
+                    end
+                end
+                
+                table.sort(itemList, function(itemIdA, itemIdB)
+                    return (GetItemInfoCustom(itemIdA)) < (GetItemInfoCustom(itemIdB))
+                end)
+                
+                if(clearSelected) then
+                    ScootsVendor.frames.itemsBypassFiltersList.selectedItemId = nil
+                    ScootsVendor.frames.removeFromBypass:Disable()
+                end
+                
+                return itemList
+            end,
+            ['selectItemCallback'] = function()
+                ScootsVendor.frames.removeFromBypass:Enable()
+            end,
+        })
+        
+        groupHeight = groupHeight + ScootsVendor.frames.itemsBypassFiltersList:GetHeight() + 12
+        
+        --
+        
+        ScootsVendor.frames.removeFromBypass = CreateFrame('Button', 'ScootsVendor-RemoveFromBypass', ScootsVendor.frames.itemsBypassFiltersGroup, 'UIPanelButtonTemplate')
+        ScootsVendor.frames.removeFromBypass:SetSize(120, 20)
+        ScootsVendor.frames.removeFromBypass:SetPoint('TOPLEFT', ScootsVendor.frames.itemsBypassFiltersList, 'BOTTOMLEFT', 0, -4)
+        ScootsVendor.frames.removeFromBypass:SetText('Remove selected')
+        ScootsVendor.frames.removeFromBypass:Disable()
+        
+        ScootsVendor.frames.removeFromBypass:SetScript('OnClick', function()
+            local bypassItems = ScootsVendor.options.get('bypass-items')
+            local itemId = ScootsVendor.frames.itemsBypassFiltersList.selectedItemId
             
-            height = height + bypassFilterItemOption:GetHeight() + 5
-        end
+            if(bypassItems[itemId]) then
+                bypassItems[itemId] = nil
+                ScootsVendor.options.set('bypass-items', bypassItems)
+            end
+            
+            ScootsVendor.frames.removeFromBypass:Disable()
+            ScootsVendor.frames.itemsBypassFiltersList.dataChanged()
+        end)
+        
+        groupHeight = groupHeight + ScootsVendor.frames.removeFromBypass:GetHeight() + 4
+        
+        --
+        
+        ScootsVendor.frames.itemsBypassFiltersGroup:SetHeight(groupHeight)
+        height = height + groupHeight + 2
+        ScootsVendor.frames.itemsBypassFiltersList.dataChanged()
         
         --
     
@@ -857,16 +943,16 @@ ScootsVendor.options.insertOptionsGroup = function(data)
     
     groupFrame:SetWidth(data.width)
     groupFrame:SetBackdrop({
-        bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
-        edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border',
-        tile = true,
-        tileSize = 16,
-        edgeSize = 16,
-        insets = {
-            left = 5,
-            right = 5,
-            top = 5,
-            bottom = 5,
+        ['bgFile'] = 'Interface\\Tooltips\\UI-Tooltip-Background',
+        ['edgeFile'] = 'Interface\\Tooltips\\UI-Tooltip-Border',
+        ['tile'] = true,
+        ['tileSize'] = 16,
+        ['edgeSize'] = 16,
+        ['insets'] = {
+            ['left'] = 5,
+            ['right'] = 5,
+            ['top'] = 5,
+            ['bottom'] = 5,
         },
     })
 
@@ -877,7 +963,20 @@ ScootsVendor.options.insertOptionsGroup = function(data)
     groupFrame.title:SetPoint('TOPLEFT', groupFrame, 'TOPLEFT', 10, -10)
     groupFrame.title:SetText(data.title)
     
-    return groupFrame, groupFrame.title:GetHeight() + 20
+    local height = groupFrame.title:GetHeight()
+    
+    if(data.subtitle) then
+        groupFrame.subtitle = groupFrame:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+        groupFrame.subtitle:SetWidth(data.width - 20)
+        groupFrame.subtitle:SetPoint('TOPLEFT', groupFrame.title, 'BOTTOMLEFT', 0, 0)
+        groupFrame.subtitle:SetText(data.subtitle)
+        groupFrame.subtitle:SetJustifyH('LEFT')
+        groupFrame.subtitle:SetWordWrap(true)
+        
+        height = height + groupFrame.subtitle:GetHeight()
+    end
+    
+    return groupFrame, height + 20
 end
 
 ScootsVendor.options.insertItemCatcher = function(data)
@@ -999,9 +1098,11 @@ ScootsVendor.options.insertItemList = function(data)
         end)
         
         childFrame:SetScript('OnClick', function()
-            listFrame.selectedItemId = childFrame.itemId
-            listFrame.updateView()
-            data.selectItemCallback()
+            if(childFrame.itemId) then
+                listFrame.selectedItemId = childFrame.itemId
+                listFrame.updateView()
+                data.selectItemCallback()
+            end
         end)
         
         table.insert(listFrame.childFrames, childFrame)
@@ -1011,7 +1112,7 @@ ScootsVendor.options.insertItemList = function(data)
         local itemIdList = data.getItemsCallback()
         local offset = FauxScrollFrame_GetOffset(listFrame)
         
-        for childIndex = 1, 10 do
+        for childIndex = 1, data.childCount do
             local childFrame = listFrame.childFrames[childIndex]
             local itemIndex = childIndex + offset
             local itemId = itemIdList[itemIndex]
@@ -1133,49 +1234,4 @@ ScootsVendor.options.insertOptionsRadio = function(data)
     end
     
     return header, checkboxes
-end
-
-ScootsVendor.options.getItemsThatBypassFilters = function()
-    return {
-        {
-            ['id'] = 47241, -- Emblem of Triumph
-            ['option-name'] = 'Emblem of Triumph bypasses filters',
-            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" filter will always allow Emblem of Triumph to show.',
-        },
-        {
-            ['id'] = 44115, -- Wintergrasp Commendation
-            ['option-name'] = 'Wintergrasp Commendation bypasses filters',
-            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Wintergrasp Commendation to show.',
-        },
-        {
-            ['id'] = 63646, -- Wintergrasp Commendation x10
-            ['option-name'] = 'Wintergrasp Commendation x10 bypasses filters',
-            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Wintergrasp Commendation x10 to show.',
-        },
-        {
-            ['id'] = 60244, -- Commendation of Valor
-            ['option-name'] = 'Commendation of Valor bypasses filters',
-            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Commendation of Valor to show.',
-        },
-        {
-            ['id'] = 63647, -- Commendation of Valor x10
-            ['option-name'] = 'Commendation of Valor x10 bypasses filters',
-            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Commendation of Valor x10 to show.',
-        },
-        {
-            ['id'] = 60232, -- Mystery Box
-            ['option-name'] = 'Mystery Box bypasses filters',
-            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Mystery Box to show.',
-        },
-        {
-            ['id'] = 21215, -- Graccu's Mince Meat Fruitcake
-            ['option-name'] = 'Graccu\'s Mince Meat Fruitcake bypasses filters',
-            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Graccu\'s Mince Meat Fruitcake to show.',
-        },
-        {
-            ['id'] = 42225, -- Dragon's Eye
-            ['option-name'] = 'Dragon\'s Eye bypasses filters',
-            ['option-tooltip'] = 'With this option enabled, the "Show non-equipment" and "Exclude items in bag" filters will always allow Dragon\'s Eye to show.',
-        },
-    }
 end
