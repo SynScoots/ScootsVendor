@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.8.0',
+    ['version'] = '1.8.1',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -1103,7 +1103,7 @@ end
 function ScootsVendor__init()
     ScootsVendor.synastriaApiLoaded = true
     
-    if((CMCGetMultiClassEnabled() or 1) == 2) then
+    if(bit.band(CMCGetMultiClassEnabled(), 0x7f) >= 2 or bit.band(CMCGetMultiClassEnabled(), 0x80) ~= 0) then
         ScootsVendor.prestiged = true
     end
     
