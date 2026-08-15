@@ -1,5 +1,5 @@
 ScootsVendor = {
-    ['version'] = '1.8.1',
+    ['version'] = '1.9.0',
     ['title'] = 'ScootsVendor',
     ['storage'] = {},
     ['mode'] = 'purchase',
@@ -37,7 +37,9 @@ ScootsVendor.preBuildChecks = function()
 end
 
 ScootsVendor.openVendor = function()
-    ScootsVendor.interface.build()
+    if(ScootsVendor.interface.built ~= true and ScootsVendor.preBuildChecks()) then
+        ScootsVendor.interface.build(true)
+    end
     
     if(not ScootsVendor.frames.master:IsVisible()) then
         ScootsVendor.interface.toggle()
@@ -264,12 +266,7 @@ end
 ScootsVendor.filterNonEquipment = function(itemId)
     local check = ScootsVendor.getFilter('show-non-equipment')
     
-    if(check == true) then
-        return true
-    end
-    
-    local bypassItems = ScootsVendor.options.get('bypass-items') or {}
-    if(bypassItems[itemId]) then
+    if(check == true or ScootsVendor.bypassFilters(itemId)) then
         return true
     end
     
@@ -279,12 +276,7 @@ end
 ScootsVendor.filterInBag = function(itemId, bagContents)
     local check = ScootsVendor.getFilter('exclude-items-in-bag')
     
-    if(check == false) then
-        return true
-    end
-    
-    local bypassItems = ScootsVendor.options.get('bypass-items') or {}
-    if(bypassItems[itemId]) then
+    if(check == false or ScootsVendor.bypassFilters(itemId)) then
         return true
     end
     
@@ -370,6 +362,19 @@ ScootsVendor.filterAttunedAt = function(itemId)
     end
     
     return GetItemAttuneForge(itemId) <= check
+end
+
+ScootsVendor.bypassFilters = function(itemId)
+    local bypassItems = ScootsVendor.options.get('bypass-items') or {}
+    if(bypassItems[itemId]) then
+        return true
+    end
+    
+    if(ScootsVendor.options.get('bypass-quest-required') and ScootsVendor.utility.itemIsQuestRequirement(itemId) and ScootsVendor.utility.itemIsRequiredForCurrentQuest(itemId)) then
+        return true
+    end
+    
+    return false
 end
 
 ScootsVendor.renderItemList = function()
@@ -1063,6 +1068,8 @@ ScootsVendor.eventHandler = function(self, event)
         else
             ScootsVendor.recentEvents['PLAYER_MONEY'] = true
         end
+    elseif(event == 'QUEST_ACCEPTED' or event == 'QUEST_TURNED_IN' or event == 'QUEST_LOG_UPDATE' or event == 'UNIT_QUEST_LOG_CHANGED') then
+        ScootsVendor.itemsRequiredForQuestsCache = nil
     elseif(event == 'MERCHANT_CLOSED') then
         ScootsVendor.interface.forceClosed()
     elseif(event == 'ADDON_LOADED') then
@@ -1132,6 +1139,20 @@ function ScootsVendor__init()
             ScootsVendor.activeChatFrame = nil
         end)
     end
+    
+    -- Fix for old imports
+    if(IsAddOnLoaded('AttuneHelper')) then
+        local neverSellList = ScootsVendor.options.get('never-sell')
+        
+        for key, value in pairs(neverSellList) do
+            if(type(key) == 'string') then
+                neverSellList[tonumber(key)] = value
+                neverSellList[key] = nil
+            end
+        end
+        
+        ScootsVendor.options.set('never-sell', neverSellList)
+    end
 end
 
 ScootsVendor.frames.loopHolder:SetScript('OnUpdate', ScootsVendor.updateLoop)
@@ -1144,5 +1165,9 @@ ScootsVendor.frames.master:RegisterEvent('PLAYER_MONEY')
 ScootsVendor.frames.master:RegisterEvent('BAG_UPDATE')
 ScootsVendor.frames.master:RegisterEvent('CURRENCY_DISPLAY_UPDATE')
 ScootsVendor.frames.master:RegisterEvent('CHAT_MSG_COMBAT_HONOR_GAIN')
+ScootsVendor.frames.master:RegisterEvent('QUEST_ACCEPTED')
+ScootsVendor.frames.master:RegisterEvent('QUEST_TURNED_IN')
+ScootsVendor.frames.master:RegisterEvent('QUEST_LOG_UPDATE')
+ScootsVendor.frames.master:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
 ScootsVendor.frames.master:RegisterEvent('ADDON_LOADED')
 ScootsVendor.frames.master:RegisterEvent('PLAYER_LOGOUT')

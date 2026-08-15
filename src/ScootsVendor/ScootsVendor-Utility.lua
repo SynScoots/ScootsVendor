@@ -36,6 +36,38 @@ ScootsVendor.utility.itemIsBop = function(itemId)
     return bit.band(itemTagsTwo or 0, 0x80) > 0
 end
 
+ScootsVendor.utility.itemIsQuestRequirement = function(itemId)
+    local _, _, itemTagsThree = GetItemTagsCustom(itemId)
+    return bit.band(itemTagsThree or 0, 8) > 0
+end
+
+ScootsVendor.utility.itemIsRequiredForCurrentQuest = function(itemId)
+    if(ScootsVendor.itemsRequiredForQuestsCache == nil) then
+        ScootsVendor.itemsRequiredForQuestsCache = {}
+        
+        HideUIPanel(_G['QuestLogFrame'])
+
+        local questIndex = 1
+        while(GetQuestLogTitle(questIndex) ~= nil) do
+            SelectQuestLogEntry(questIndex)
+            
+            local objectiveCount = GetNumQuestLeaderBoards()
+            
+            for objectiveIndex = 1, objectiveCount do
+                local objectiveName, objectiveType, objectiveComplete = GetQuestLogLeaderBoard(objectiveIndex)
+                
+                if(not objectiveComplete and objectiveType == 'item') then
+                    ScootsVendor.itemsRequiredForQuestsCache[objectiveName:match('^(.-): (%d+)/(%d+)$')] = true
+                end
+            end
+            
+            questIndex = questIndex + 1
+        end
+    end
+    
+    return ScootsVendor.itemsRequiredForQuestsCache[(GetItemInfoCustom(itemId))] or false
+end
+
 ScootsVendor.utility.getPlayerCurrencies = function()
     local playerCurrencies = {}
     local currencyListSize = GetCurrencyListSize()
@@ -395,6 +427,8 @@ ScootsVendor.utility.itemCanUpgradeToAttuneable = function(itemId)
         [10543] = {10588},
         [13503] = {35748, 35749, 35750, 35751},
         [14044] = {15138},
+        [18608] = {18609},
+        [18609] = {18608},
         [16666] = {22102},
         [16667] = {22097},
         [16668] = {22100},

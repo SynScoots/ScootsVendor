@@ -12,6 +12,7 @@ ScootsVendor.options.load = function()
         },
         ['auto-forge-batch-size'] = 1,
         ['drag-window'] = true,
+        ['bypass-quest-required'] = true,
         ['bypass-items'] = {
             [47241] = true, -- Emblem of Triumph
             [44115] = true, -- Wintergrasp Commendation
@@ -179,6 +180,26 @@ ScootsVendor.options.buildGeneralOptions = function()
         
         --
         
+        ScootsVendor.frames.alwaysShowQuestRequiredOption = ScootsVendor.options.insertOptionsCheckbox({
+            ['framename'] = 'ScootsVendor-Options-AlwaysShowQuestRequired',
+            ['parent'] = ScootsVendor.frames.optionsScrollChild,
+            ['prior'] = ScootsVendor.frames.draggableOption,
+            ['offset'] = 0,
+            ['name'] = 'Quest requirements bypass filters',
+            ['defaultState'] = ScootsVendor.options.get('bypass-quest-required'),
+            ['tooltip'] = table.concat({
+                'With this option enabled, if an item is needed for a quest it will ignore the "Show non-equipment" and "Exclude items in bag" filters.',
+                'Note: This will show items even if they are not for a quest presently in your log.',
+            }, '\n\n'),
+            ['onClickEvent'] = function(self)
+                ScootsVendor.options.set('bypass-quest-required', (self:GetChecked() and true) or false)
+            end,
+        })
+        
+        height = height + ScootsVendor.frames.alwaysShowQuestRequiredOption:GetHeight()
+        
+        --
+        
         local groupHeight
         ScootsVendor.frames.itemsBypassFiltersGroup, groupHeight = ScootsVendor.options.insertOptionsGroup({
             ['framename'] = 'ScootsVendor-Options-ItemsBypassFiltersGroup',
@@ -188,7 +209,7 @@ ScootsVendor.options.buildGeneralOptions = function()
             ['subtitle'] = 'Items in this list will ignore the "Show non-equipment" and "Exclude items in bag" filters.',
         })
         
-        ScootsVendor.frames.itemsBypassFiltersGroup:SetPoint('TOPLEFT', ScootsVendor.frames.draggableOption, 'BOTTOMLEFT', 0, -2)
+        ScootsVendor.frames.itemsBypassFiltersGroup:SetPoint('TOPLEFT', ScootsVendor.frames.alwaysShowQuestRequiredOption, 'BOTTOMLEFT', 0, -2)
         
         --
 
@@ -914,6 +935,7 @@ ScootsVendor.options.importFromAttuneHelper = function()
             local itemId = ignoreItem:match('^id:(%d+)$')
             
             if(itemId ~= nil) then
+                itemId = tonumber(itemId)
                 alwaysSellList[itemId] = nil
                 neverSellList[itemId] = true
             else
