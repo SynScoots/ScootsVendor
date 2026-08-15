@@ -187,10 +187,7 @@ ScootsVendor.options.buildGeneralOptions = function()
             ['offset'] = 0,
             ['name'] = 'Quest requirements bypass filters',
             ['defaultState'] = ScootsVendor.options.get('bypass-quest-required'),
-            ['tooltip'] = table.concat({
-                'With this option enabled, if an item is needed for a quest it will ignore the "Show non-equipment" and "Exclude items in bag" filters.',
-                'Note: This will show items even if they are not for a quest presently in your log.',
-            }, '\n\n'),
+            ['tooltip'] = 'With this option enabled, if an item is needed for a quest in your quest log it will ignore the "Show non-equipment" and "Exclude items in bag" filters.',
             ['onClickEvent'] = function(self)
                 ScootsVendor.options.set('bypass-quest-required', (self:GetChecked() and true) or false)
             end,
